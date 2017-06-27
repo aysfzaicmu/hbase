@@ -906,6 +906,8 @@ public interface Admin extends Abortable, Closeable {
    */
   boolean isCatalogJanitorEnabled() throws IOException;
 
+  boolean addFoo() throws IOException;
+
   /**
    * Enable/Disable the cleaner chore
    *

@@ -1023,6 +1023,10 @@ public class HMaster extends HRegionServer implements MasterServices {
       catalogJanitorChore.getEnabled() : false;
   }
 
+  public boolean addFoo() {
+    return true;
+  }
+
   boolean isCleanerChoreEnabled() {
     boolean hfileCleanerFlag = true, logCleanerFlag = true;
 

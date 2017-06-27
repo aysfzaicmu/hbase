@@ -378,6 +378,14 @@ message EnableCatalogJanitorResponse {
   optional bool prev_value = 1;
 }
 
+
+message AddFooRequest {
+}
+
+message AddFooResponse {
+  required bool value = 1;
+}
+
 message IsCatalogJanitorEnabledRequest {
 }
 
@@ -812,6 +820,9 @@ service MasterService {
    */
   rpc IsCatalogJanitorEnabled(IsCatalogJanitorEnabledRequest)
      returns(IsCatalogJanitorEnabledResponse);
+     
+  rpc AddFoo(AddFooRequest)
+     returns(AddFooResponse);
 
   /** Get a run of the CleanerChore */
   rpc RunCleanerChore(RunCleanerChoreRequest)

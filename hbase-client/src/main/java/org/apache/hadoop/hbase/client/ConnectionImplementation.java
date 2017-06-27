@@ -76,6 +76,8 @@ import org.apache.hadoop.hbase.shaded.protobuf.generated.AdminProtos;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.ClientProtos;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.ClientProtos.ClientService.BlockingInterface;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.AddFooRequest;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.AddFooResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.DrainRegionServersRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.DrainRegionServersResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsBalancerEnabledRequest;
@@ -1780,6 +1782,12 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       public GetQuotaStatesResponse getQuotaStates(
           RpcController controller, GetQuotaStatesRequest request) throws ServiceException {
         return stub.getQuotaStates(controller, request);
+      }
+
+      public AddFooResponse addFoo(RpcController controller, AddFooRequest request)
+          throws ServiceException {
+        // TODO Auto-generated method stub
+        return null;
       }
     };
   }

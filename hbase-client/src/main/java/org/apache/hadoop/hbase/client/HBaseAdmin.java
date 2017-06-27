@@ -1465,6 +1465,16 @@ public class HBaseAdmin implements Admin {
   }
 
   @Override
+  public boolean addFoo() throws IOException {
+    return executeCallable(new MasterCallable<Boolean>(getConnection(), getRpcControllerFactory()) {
+      @Override
+      protected Boolean rpcCall() throws Exception {
+        return master.addFoo(getRpcController(), RequestConverter.buildAddFooRequest()).getValue();
+      }
+    });
+  }
+
+  @Override
   public boolean setCleanerChoreRunning(final boolean on) throws IOException {
     return executeCallable(new MasterCallable<Boolean>(getConnection(), getRpcControllerFactory()) {
       @Override public Boolean rpcCall() throws Exception {

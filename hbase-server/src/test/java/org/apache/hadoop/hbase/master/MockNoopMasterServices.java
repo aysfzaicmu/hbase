@@ -50,6 +50,7 @@ import org.apache.hadoop.hbase.replication.ReplicationPeerConfig;
 import org.apache.hadoop.hbase.replication.ReplicationPeerDescription;
 import org.apache.hadoop.hbase.zookeeper.MetaTableLocator;
 import org.apache.hadoop.hbase.zookeeper.ZooKeeperWatcher;
+
 import com.google.protobuf.Service;
 
 public class MockNoopMasterServices implements MasterServices, Server {
@@ -78,6 +79,11 @@ public class MockNoopMasterServices implements MasterServices, Server {
       final long nonce) throws IOException {
     // no-op
     return -1;
+  }
+
+  @Override
+  public boolean addFoo() {
+    return false;
   }
 
   @Override

@@ -511,4 +511,10 @@ public class ShortCircuitMasterConnection implements MasterKeepAliveConnection {
       DispatchMergingRegionsRequest request) throws ServiceException {
     return stub.dispatchMergingRegions(controller, request);
   }
+
+  public AddFooResponse addFoo(RpcController controller, AddFooRequest request)
+      throws ServiceException {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }
