@@ -909,6 +909,7 @@ public class MasterRpcServices extends RSRpcServices
       master.isCatalogJanitorEnabled()).build();
   }
   
+  @Override
   public AddFooResponse addFoo(RpcController c,
       AddFooRequest req) throws ServiceException {
     return AddFooResponse.newBuilder().setValue(

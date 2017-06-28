@@ -378,7 +378,6 @@ message EnableCatalogJanitorResponse {
   optional bool prev_value = 1;
 }
 
-
 message AddFooRequest {
 }
 

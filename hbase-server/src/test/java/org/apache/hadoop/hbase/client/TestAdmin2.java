@@ -54,8 +54,8 @@ import org.apache.hadoop.hbase.TableNotEnabledException;
 import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.constraint.ConstraintException;
-import org.apache.hadoop.hbase.master.assignment.AssignmentManager;
 import org.apache.hadoop.hbase.master.HMaster;
+import org.apache.hadoop.hbase.master.assignment.AssignmentManager;
 import org.apache.hadoop.hbase.regionserver.HRegionServer;
 import org.apache.hadoop.hbase.regionserver.Region;
 import org.apache.hadoop.hbase.shaded.protobuf.ProtobufUtil;
@@ -68,9 +68,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 
@@ -115,6 +115,13 @@ public class TestAdmin2 {
     for (HTableDescriptor htd : this.admin.listTables()) {
       TEST_UTIL.deleteTable(htd.getTableName());
     }
+  }
+
+  @Test
+  public void testFoo() throws IOException {
+    boolean result = admin.addFoo();
+    System.out.println("result is " + result);
+    assertEquals(true, result);
   }
 
   @Test (timeout=300000)
