@@ -3396,6 +3396,11 @@ public class HMaster extends HRegionServer implements MasterServices {
   }
 
   @Override
+  public ReplicationPeerConfig locateMeta() throws ReplicationException, IOException {
+    return new ReplicationPeerConfig();
+  }
+
+  @Override
   public void updateReplicationPeerConfig(String peerId, ReplicationPeerConfig peerConfig)
       throws ReplicationException, IOException {
     if (cpHost != null) {

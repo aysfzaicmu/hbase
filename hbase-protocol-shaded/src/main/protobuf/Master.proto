@@ -166,6 +166,14 @@ message DeleteTableResponse {
   optional uint64 proc_id = 1;
 }
 
+
+message LocateMetaRequest {
+}
+
+message LocateMetaResponse {
+  required ReplicationPeer peer_config = 1;
+}
+
 message TruncateTableRequest {
   required TableName tableName = 1;
   optional bool preserveSplits = 2 [default = false];

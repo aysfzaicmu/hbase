@@ -477,6 +477,7 @@ public interface MasterServices extends Server {
   ReplicationPeerConfig getReplicationPeerConfig(String peerId) throws ReplicationException,
       IOException;
 
+  ReplicationPeerConfig locateMeta() throws ReplicationException, IOException;
   /**
    * Update the peerConfig for the specified peer
    * @param peerId a short name that identifies the peer
