@@ -978,6 +978,9 @@ service MasterService {
   rpc GetReplicationPeerConfig(GetReplicationPeerConfigRequest)
     returns(GetReplicationPeerConfigResponse);
 
+  rpc LocateMeta(LocateMetaRequest)
+    returns(LocateMetaResponse);
+    
   /** Update peer config for a replication peer */
   rpc UpdateReplicationPeerConfig(UpdateReplicationPeerConfigRequest)
     returns(UpdateReplicationPeerConfigResponse);
