@@ -3397,7 +3397,9 @@ public class HMaster extends HRegionServer implements MasterServices {
 
   @Override
   public ReplicationPeerConfig locateMeta() throws ReplicationException, IOException {
-    return new ReplicationPeerConfig();
+    ReplicationPeerConfig result = new ReplicationPeerConfig();
+    result.setClusterKey("Abcd");
+    return result;
   }
 
   @Override

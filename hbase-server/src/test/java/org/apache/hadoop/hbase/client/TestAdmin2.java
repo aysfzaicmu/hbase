@@ -58,6 +58,7 @@ import org.apache.hadoop.hbase.master.HMaster;
 import org.apache.hadoop.hbase.master.assignment.AssignmentManager;
 import org.apache.hadoop.hbase.regionserver.HRegionServer;
 import org.apache.hadoop.hbase.regionserver.Region;
+import org.apache.hadoop.hbase.replication.ReplicationPeerConfig;
 import org.apache.hadoop.hbase.shaded.protobuf.ProtobufUtil;
 import org.apache.hadoop.hbase.testclassification.ClientTests;
 import org.apache.hadoop.hbase.testclassification.LargeTests;
@@ -122,6 +123,13 @@ public class TestAdmin2 {
     boolean result = admin.addFoo();
     System.out.println("result is " + result);
     assertEquals(true, result);
+  }
+
+  @Test
+  public void testLocateMeta() throws IOException {
+    ReplicationPeerConfig result = admin.locateMeta();
+    System.out.println("clusterkey is " + result.getClusterKey());
+    assertEquals("Abcd", result.getClusterKey());
   }
 
   @Test (timeout=300000)
