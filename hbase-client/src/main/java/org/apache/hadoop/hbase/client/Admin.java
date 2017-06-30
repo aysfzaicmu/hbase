@@ -1946,6 +1946,10 @@ public interface Admin extends Abortable, Closeable {
     return new ReplicationPeerConfig();
   }
 
+  default ReplicationPeerConfig locateMeta() throws IOException {
+    return new ReplicationPeerConfig();
+  }
+
   /**
    * Update the peerConfig for the specified peer
    * @param peerId a short name that identifies the peer
