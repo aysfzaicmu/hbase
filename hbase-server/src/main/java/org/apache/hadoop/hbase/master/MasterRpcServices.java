@@ -1745,20 +1745,18 @@ public class MasterRpcServices extends RSRpcServices
     return response.build();
   }
 
-  // public LocateMetaResponse locateMeta(RpcController controller, LocateMetaRequest request)
-  // throws ServiceException {
-  // LocateMetaResponse.Builder response =
-  // LocateMetaResponse.newBuilder();
-  // try {
-  // String peerId = request.getPeerId();
-  // ReplicationPeerConfig peerConfig = master.getReplicationPeerConfig(peerId);
-  // response.setPeerId(peerId);
-  // response.setPeerConfig(ReplicationSerDeHelper.convert(peerConfig));
-  // } catch (ReplicationException | IOException e) {
-  // throw new ServiceException(e);
-  // }
-  // return response.build();
-  // }
+  @Override
+  public LocateMetaResponse locateMeta(RpcController controller, LocateMetaRequest request)
+      throws ServiceException {
+    LocateMetaResponse.Builder response = LocateMetaResponse.newBuilder();
+    try {
+      ReplicationPeerConfig peerConfig = master.locateMeta();
+      response.setPeerConfig(ReplicationSerDeHelper.convert(peerConfig));
+    } catch (ReplicationException | IOException e) {
+      throw new ServiceException(e);
+    }
+    return response.build();
+  }
 
   @Override
   public UpdateReplicationPeerConfigResponse updateReplicationPeerConfig(RpcController controller,

@@ -84,6 +84,8 @@ import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsNormaliz
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsNormalizerEnabledResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.ListDrainingRegionServersRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.ListDrainingRegionServersResponse;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.LocateMetaRequest;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.LocateMetaResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.NormalizeRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.NormalizeResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.RemoveDrainFromRegionServersRequest;
@@ -1754,6 +1756,12 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       public GetReplicationPeerConfigResponse getReplicationPeerConfig(RpcController controller,
           GetReplicationPeerConfigRequest request) throws ServiceException {
         return stub.getReplicationPeerConfig(controller, request);
+      }
+
+      @Override
+      public LocateMetaResponse locateMeta(RpcController controller, LocateMetaRequest request)
+          throws ServiceException {
+        return stub.locateMeta(controller, request);
       }
 
       @Override
