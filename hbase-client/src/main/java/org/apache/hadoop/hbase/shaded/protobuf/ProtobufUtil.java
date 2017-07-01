@@ -55,6 +55,7 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.ProcedureInfo;
 import org.apache.hadoop.hbase.ProcedureState;
+import org.apache.hadoop.hbase.RegionLocations;
 import org.apache.hadoop.hbase.ServerLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableName;
@@ -93,7 +94,6 @@ import org.apache.hadoop.hbase.io.TimeRange;
 import org.apache.hadoop.hbase.master.RegionState;
 import org.apache.hadoop.hbase.procedure2.LockInfo;
 import org.apache.hadoop.hbase.protobuf.ProtobufMagic;
-import org.apache.hadoop.hbase.shaded.protobuf.generated.AdminProtos.MergeRegionsRequest;
 import org.apache.hadoop.hbase.quotas.QuotaScope;
 import org.apache.hadoop.hbase.quotas.QuotaType;
 import org.apache.hadoop.hbase.quotas.SpaceViolationPolicy;
@@ -126,6 +126,7 @@ import org.apache.hadoop.hbase.shaded.protobuf.generated.AdminProtos.GetServerIn
 import org.apache.hadoop.hbase.shaded.protobuf.generated.AdminProtos.GetServerInfoResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.AdminProtos.GetStoreFileRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.AdminProtos.GetStoreFileResponse;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.AdminProtos.MergeRegionsRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.AdminProtos.OpenRegionRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.AdminProtos.ServerInfo;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.AdminProtos.SplitRegionRequest;
@@ -188,7 +189,6 @@ import org.apache.hadoop.hbase.util.Methods;
 import org.apache.hadoop.hbase.util.NonceKey;
 import org.apache.hadoop.hbase.util.VersionInfo;
 import org.apache.hadoop.ipc.RemoteException;
-import org.apache.hadoop.mapreduce.tools.CLI;
 
 /**
  * Protobufs utility.
@@ -2219,6 +2219,20 @@ public final class ProtobufUtil {
           .setName(entry.getKey())
           .setValue(entry.getValue()));
     }
+    return b.build();
+  }
+
+  public static MasterProtos.RegionLocations toProtoRegionLocations(RegionLocations rl) {
+    MasterProtos.RegionLocations.Builder b = MasterProtos.RegionLocations.newBuilder();
+    // b.set
+    
+//        
+//        HBaseProtos.NamespaceDescriptor.Builder b =
+//        HBaseProtos.NamespaceDescriptor.newBuilder().setName(ByteString.copyFromUtf8(ns.getName()));
+//    for (Map.Entry<String, String> entry : ns.getConfiguration().entrySet()) {
+//      b.addConfiguration(
+//        HBaseProtos.NameStringPair.newBuilder().setName(entry.getKey()).setValue(entry.getValue()));
+//    }
     return b.build();
   }
 

@@ -34,10 +34,12 @@ import org.apache.hadoop.hbase.DoNotRetryIOException;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HRegionInfo;
+import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.MetaTableAccessor;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.ProcedureInfo;
+import org.apache.hadoop.hbase.RegionLocations;
 import org.apache.hadoop.hbase.ServerLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableName;
@@ -1753,6 +1755,29 @@ public class MasterRpcServices extends RSRpcServices
       ReplicationPeerConfig peerConfig = master.locateMeta();
       response.setPeerConfig(ReplicationSerDeHelper.convert(peerConfig));
     } catch (ReplicationException | IOException e) {
+      throw new ServiceException(e);
+    }
+    return response.build();
+  }
+
+  @Override
+  public LocateMeta1Response locateMeta1(RpcController controller, LocateMeta1Request request)
+      throws ServiceException {
+    LocateMeta1Response.Builder response = LocateMeta1Response.newBuilder();
+    try {
+      RegionLocations region_locs = master.locateMeta1();
+      MasterProtos.RegionLocations.Builder builder = MasterProtos.RegionLocations.newBuilder();
+      for (HRegionLocation rl : region_locs.getRegionLocations()) {
+        MasterProtos.RegionLocation.Builder reg_loc_builder =
+            MasterProtos.RegionLocation.newBuilder();
+        // reg_loc_builder.setRegionInfo(rl.getRegionInfo());
+        reg_loc_builder.setSeqNum(rl.getSeqNum());
+        builder.addLocations(reg_loc_builder);
+
+      }
+      // response.setRegionLocations(proto_region_locs)
+      // response.setPeerConfig(ReplicationSerDeHelper.convert(peerConfig));
+    } catch (IOException e) {
       throw new ServiceException(e);
     }
     return response.build();

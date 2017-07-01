@@ -27,6 +27,7 @@ import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.ProcedureInfo;
+import org.apache.hadoop.hbase.RegionLocations;
 import org.apache.hadoop.hbase.Server;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableDescriptors;
@@ -434,6 +435,11 @@ public class MockNoopMasterServices implements MasterServices, Server {
 
   @Override
   public ReplicationPeerConfig locateMeta() throws ReplicationException, IOException {
+    return null;
+  }
+
+  @Override
+  public RegionLocations locateMeta1() throws IOException {
     return null;
   }
 

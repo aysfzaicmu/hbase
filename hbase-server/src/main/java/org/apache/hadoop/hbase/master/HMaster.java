@@ -68,6 +68,7 @@ import org.apache.hadoop.hbase.MetaTableAccessor;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.PleaseHoldException;
 import org.apache.hadoop.hbase.ProcedureInfo;
+import org.apache.hadoop.hbase.RegionLocations;
 import org.apache.hadoop.hbase.ServerLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableDescriptors;
@@ -3400,6 +3401,11 @@ public class HMaster extends HRegionServer implements MasterServices {
     ReplicationPeerConfig result = new ReplicationPeerConfig();
     result.setClusterKey("Abcd");
     return result;
+  }
+
+  @Override
+  public RegionLocations locateMeta1() throws IOException {
+    return new RegionLocations();
   }
 
   @Override

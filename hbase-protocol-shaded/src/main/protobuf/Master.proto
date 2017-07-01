@@ -167,6 +167,23 @@ message DeleteTableResponse {
 }
 
 
+message RegionLocation {
+	required RegionInfo region_info = 1;
+	required ServerName server_name = 2;
+	required int64 seq_num = 3;
+}
+
+message RegionLocations {
+	repeated RegionLocation locations = 1;
+}
+
+message LocateMeta1Request {
+}
+
+message LocateMeta1Response {
+  required RegionLocations region_locations = 1;
+}
+
 message LocateMetaRequest {
 }
 
@@ -980,6 +997,9 @@ service MasterService {
 
   rpc LocateMeta(LocateMetaRequest)
     returns(LocateMetaResponse);
+    
+  rpc LocateMeta1(LocateMeta1Request)
+    returns(LocateMeta1Response);
     
   /** Update peer config for a replication peer */
   rpc UpdateReplicationPeerConfig(UpdateReplicationPeerConfigRequest)
