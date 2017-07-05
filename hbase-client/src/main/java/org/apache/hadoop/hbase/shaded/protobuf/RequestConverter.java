@@ -105,6 +105,7 @@ import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsCleanerC
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsMasterRunningRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsNormalizerEnabledRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsSplitOrMergeEnabledRequest;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.LocateMeta1Request;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.LocateMetaRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.MergeTableRegionsRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.ModifyColumnRequest;
@@ -1637,6 +1638,11 @@ public final class RequestConverter {
   public static LocateMetaRequest buildLocateMetaRequest() {
     LocateMetaRequest.Builder builder = LocateMetaRequest.newBuilder();
     // builder.setPeerId(peerId);
+    return builder.build();
+  }
+
+  public static LocateMeta1Request buildLocateMeta1Request() {
+    LocateMeta1Request.Builder builder = LocateMeta1Request.newBuilder();
     return builder.build();
   }
 

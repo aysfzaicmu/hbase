@@ -62,6 +62,7 @@ import org.apache.hadoop.hbase.HBaseInterfaceAudience;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HRegionInfo;
+import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.MetaTableAccessor;
@@ -3403,9 +3404,17 @@ public class HMaster extends HRegionServer implements MasterServices {
     return result;
   }
 
+  private static final TableName TABLENAME = TableName.META_TABLE_NAME;
   @Override
   public RegionLocations locateMeta1() throws IOException {
-    return new RegionLocations();
+
+
+    HRegionInfo info = new HRegionInfo(1, TABLENAME, 20);
+
+    // ServerName server_name = new ServerName();
+    HRegionLocation region_loc = new HRegionLocation(info, this.serverName, 123);
+    RegionLocations region_locs = new RegionLocations(region_loc);
+    return region_locs;
   }
 
   @Override

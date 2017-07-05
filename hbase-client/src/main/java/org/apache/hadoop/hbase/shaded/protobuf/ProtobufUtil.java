@@ -55,7 +55,6 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.ProcedureInfo;
 import org.apache.hadoop.hbase.ProcedureState;
-import org.apache.hadoop.hbase.RegionLocations;
 import org.apache.hadoop.hbase.ServerLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableName;
@@ -2219,20 +2218,6 @@ public final class ProtobufUtil {
           .setName(entry.getKey())
           .setValue(entry.getValue()));
     }
-    return b.build();
-  }
-
-  public static MasterProtos.RegionLocations toProtoRegionLocations(RegionLocations rl) {
-    MasterProtos.RegionLocations.Builder b = MasterProtos.RegionLocations.newBuilder();
-    // b.set
-    
-//        
-//        HBaseProtos.NamespaceDescriptor.Builder b =
-//        HBaseProtos.NamespaceDescriptor.newBuilder().setName(ByteString.copyFromUtf8(ns.getName()));
-//    for (Map.Entry<String, String> entry : ns.getConfiguration().entrySet()) {
-//      b.addConfiguration(
-//        HBaseProtos.NameStringPair.newBuilder().setName(entry.getKey()).setValue(entry.getValue()));
-//    }
     return b.build();
   }
 

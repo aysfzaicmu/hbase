@@ -38,6 +38,7 @@ import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.NamespaceNotFoundException;
 import org.apache.hadoop.hbase.ProcedureInfo;
 import org.apache.hadoop.hbase.RegionLoad;
+import org.apache.hadoop.hbase.RegionLocations;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableExistsException;
 import org.apache.hadoop.hbase.TableName;
@@ -1948,6 +1949,10 @@ public interface Admin extends Abortable, Closeable {
 
   default ReplicationPeerConfig locateMeta() throws IOException {
     return new ReplicationPeerConfig();
+  }
+
+  default RegionLocations locateMeta1() throws IOException {
+    return new RegionLocations();
   }
 
   /**

@@ -46,6 +46,7 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.MiniHBaseCluster;
 import org.apache.hadoop.hbase.NotServingRegionException;
 import org.apache.hadoop.hbase.ProcedureInfo;
+import org.apache.hadoop.hbase.RegionLocations;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableExistsException;
 import org.apache.hadoop.hbase.TableName;
@@ -58,7 +59,6 @@ import org.apache.hadoop.hbase.master.HMaster;
 import org.apache.hadoop.hbase.master.assignment.AssignmentManager;
 import org.apache.hadoop.hbase.regionserver.HRegionServer;
 import org.apache.hadoop.hbase.regionserver.Region;
-import org.apache.hadoop.hbase.replication.ReplicationPeerConfig;
 import org.apache.hadoop.hbase.shaded.protobuf.ProtobufUtil;
 import org.apache.hadoop.hbase.testclassification.ClientTests;
 import org.apache.hadoop.hbase.testclassification.LargeTests;
@@ -125,11 +125,29 @@ public class TestAdmin2 {
     assertEquals(true, result);
   }
 
+  // @Test
+  // public void testLocateMeta() throws IOException {
+  // ReplicationPeerConfig result = admin.locateMeta();
+  // System.out.println("clusterkey is " + result.getClusterKey());
+  // assertEquals("Abcd", result.getClusterKey());
+  // }
+
   @Test
-  public void testLocateMeta() throws IOException {
-    ReplicationPeerConfig result = admin.locateMeta();
-    System.out.println("clusterkey is " + result.getClusterKey());
-    assertEquals("Abcd", result.getClusterKey());
+  public void testLocateMeta1() throws IOException {
+    RegionLocations result = admin.locateMeta1();
+    int size = result.getRegionLocations().length;
+    HRegionLocation[] rlocs = result.getRegionLocations();
+    System.out.println("region locations: " + rlocs.length);
+    for (HRegionLocation hr : rlocs) {
+      if (hr != null) {
+        ServerName serverName = hr.getServerName();
+        String ns = hr.getRegionInfo().getTable().getNamespaceAsString();
+        System.out.println("in test ns is " + ns);
+        System.out.println("in test hostname is " + serverName.getHostname());
+      }
+      else System.out.println("region loc is null");
+
+    }
   }
 
   @Test (timeout=300000)
