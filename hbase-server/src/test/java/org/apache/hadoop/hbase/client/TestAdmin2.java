@@ -141,9 +141,14 @@ public class TestAdmin2 {
     for (HRegionLocation hr : rlocs) {
       if (hr != null) {
         ServerName serverName = hr.getServerName();
+        HRegionInfo regionInfo = hr.getRegionInfo();
         String ns = hr.getRegionInfo().getTable().getNamespaceAsString();
-        System.out.println("in test ns is " + ns);
-        System.out.println("in test hostname is " + serverName.getHostname());
+        System.out.println("in test regioninfo,table,namespace ns is " + ns);
+        System.out.println("in test regioninfo,regionId is " + regionInfo.getRegionId());
+        System.out.println("in test regioninfo,replicaId is " + regionInfo.getReplicaId());
+
+        System.out.println("in test server,hostname is " + serverName.getHostname());
+        System.out.println("in test seq num is " + hr.getSeqNum());
       }
       else System.out.println("region loc is null");
 

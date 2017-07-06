@@ -1784,7 +1784,10 @@ public class MasterRpcServices extends RSRpcServices
           String qualifierString =
               new String(qualifier, 0, qualifier.length, StandardCharsets.UTF_8);
           System.out.println("namespace is " + nsString);
-          System.out.println("qualifier is " + qualifierString);
+          System.out.println("regionId is " + regionInfo.getRegionId());
+          System.out.println("replicaId is " + regionInfo.getReplicaId());
+          System.out.println("server hostname is " + rl.getServerName().getHostname());
+          System.out.println("seq num is " + rl.getSeqNum());
 
           // ByteString namespaceBS =
           // ByteString.copyFromUtf8(nsString);
@@ -1815,7 +1818,6 @@ public class MasterRpcServices extends RSRpcServices
           // reg_loc_builder.setSeqNum(rl.getSeqNum());
           regLocsBuilder.addLocations(regLocBuilder);
         }
-
       }
       regLocsBuilder.build();
       response.setRegionLocations(regLocsBuilder);

@@ -15521,11 +15521,11 @@ public final class MasterProtos {
     org.apache.hadoop.hbase.shaded.protobuf.generated.HBaseProtos.ServerNameOrBuilder getServerNameOrBuilder();
 
     /**
-     * <code>required int64 seq_num = 3;</code>
+     * <code>optional int64 seq_num = 3;</code>
      */
     boolean hasSeqNum();
     /**
-     * <code>required int64 seq_num = 3;</code>
+     * <code>optional int64 seq_num = 3;</code>
      */
     long getSeqNum();
   }
@@ -15673,13 +15673,13 @@ public final class MasterProtos {
     public static final int SEQ_NUM_FIELD_NUMBER = 3;
     private long seqNum_;
     /**
-     * <code>required int64 seq_num = 3;</code>
+     * <code>optional int64 seq_num = 3;</code>
      */
     public boolean hasSeqNum() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>required int64 seq_num = 3;</code>
+     * <code>optional int64 seq_num = 3;</code>
      */
     public long getSeqNum() {
       return seqNum_;
@@ -15696,10 +15696,6 @@ public final class MasterProtos {
         return false;
       }
       if (!hasServerName()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasSeqNum()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -16043,9 +16039,6 @@ public final class MasterProtos {
         if (!hasServerName()) {
           return false;
         }
-        if (!hasSeqNum()) {
-          return false;
-        }
         if (!getRegionInfo().isInitialized()) {
           return false;
         }
@@ -16312,19 +16305,19 @@ public final class MasterProtos {
 
       private long seqNum_ ;
       /**
-       * <code>required int64 seq_num = 3;</code>
+       * <code>optional int64 seq_num = 3;</code>
        */
       public boolean hasSeqNum() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>required int64 seq_num = 3;</code>
+       * <code>optional int64 seq_num = 3;</code>
        */
       public long getSeqNum() {
         return seqNum_;
       }
       /**
-       * <code>required int64 seq_num = 3;</code>
+       * <code>optional int64 seq_num = 3;</code>
        */
       public Builder setSeqNum(long value) {
         bitField0_ |= 0x00000004;
@@ -16333,7 +16326,7 @@ public final class MasterProtos {
         return this;
       }
       /**
-       * <code>required int64 seq_num = 3;</code>
+       * <code>optional int64 seq_num = 3;</code>
        */
       public Builder clearSeqNum() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -85940,7 +85933,7 @@ public final class MasterProtos {
       "\n\007proc_id\030\001 \001(\004\"w\n\016RegionLocation\022)\n\013reg" +
       "ion_info\030\001 \002(\0132\024.hbase.pb.RegionInfo\022)\n\013" +
       "server_name\030\002 \002(\0132\024.hbase.pb.ServerName\022" +
-      "\017\n\007seq_num\030\003 \002(\003\">\n\017RegionLocations\022+\n\tl" +
+      "\017\n\007seq_num\030\003 \001(\003\">\n\017RegionLocations\022+\n\tl" +
       "ocations\030\001 \003(\0132\030.hbase.pb.RegionLocation" +
       "\"\024\n\022LocateMeta1Request\"J\n\023LocateMeta1Res" +
       "ponse\0223\n\020region_locations\030\001 \002(\0132\031.hbase." +

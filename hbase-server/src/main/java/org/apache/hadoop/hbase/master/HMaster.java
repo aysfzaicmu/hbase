@@ -187,6 +187,7 @@ import org.apache.hadoop.hbase.zookeeper.DrainingServerTracker;
 import org.apache.hadoop.hbase.zookeeper.LoadBalancerTracker;
 import org.apache.hadoop.hbase.zookeeper.MasterAddressTracker;
 import org.apache.hadoop.hbase.zookeeper.MasterMaintenanceModeTracker;
+import org.apache.hadoop.hbase.zookeeper.MetaTableLocator;
 import org.apache.hadoop.hbase.zookeeper.RegionNormalizerTracker;
 import org.apache.hadoop.hbase.zookeeper.RegionServerTracker;
 import org.apache.hadoop.hbase.zookeeper.SplitOrMergeTracker;
@@ -3404,17 +3405,25 @@ public class HMaster extends HRegionServer implements MasterServices {
     return result;
   }
 
-  private static final TableName TABLENAME = TableName.META_TABLE_NAME;
+  // private static final TableName TABLENAME = TableName.META_TABLE_NAME;
   @Override
   public RegionLocations locateMeta1() throws IOException {
 
+    //
+    // HRegionInfo info = new HRegionInfo(1, TABLENAME, 20); //define tablename
+    // HRegionLocation region_loc = new HRegionLocation(info, this.serverName, 44);
+    // RegionLocations region_locs = new RegionLocations(region_loc);
+    // return region_locs;
+    List<HRegionLocation> reg_locs = new ArrayList<HRegionLocation>();
+    MetaTableLocator locator = this.getMetaTableLocator();
+    List<Pair<HRegionInfo, ServerName>> meta_info =
+        locator.getMetaRegionsAndLocations(this.zooKeeper);
+    for (Pair<HRegionInfo, ServerName> pair : meta_info) {
+      HRegionLocation reg_loc = new HRegionLocation(pair.getFirst(), pair.getSecond());
+      reg_locs.add(reg_loc);
 
-    HRegionInfo info = new HRegionInfo(1, TABLENAME, 20);
-
-    // ServerName server_name = new ServerName();
-    HRegionLocation region_loc = new HRegionLocation(info, this.serverName, 123);
-    RegionLocations region_locs = new RegionLocations(region_loc);
-    return region_locs;
+    }
+    return new RegionLocations(reg_locs);
   }
 
   @Override

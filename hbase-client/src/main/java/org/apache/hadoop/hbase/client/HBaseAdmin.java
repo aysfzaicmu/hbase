@@ -3888,7 +3888,9 @@ public class HBaseAdmin implements Admin {
             HBaseProtos.RegionInfo proto_region_info = rl.getRegionInfo();
             HBaseProtos.TableName proto_table_name = proto_region_info.getTableName();
             HBaseProtos.ServerName proto_server_name = rl.getServerName();
-            long seq_num = rl.getSeqNum();
+
+            long seq_num = rl.getSeqNum(); // add check to see if it is present or not
+            System.out.println("in hbase admin seq num is " + seq_num);
             //TableName table_name = new TableName(proto_table_name.getNamespace(), proto_table_name.getQualifier());
             // TableName table_name = TableName.valueOf(proto_table_name.getNamespace().toString(),
             // proto_table_name.getQualifier().toString());

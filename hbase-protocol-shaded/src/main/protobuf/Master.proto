@@ -170,7 +170,7 @@ message DeleteTableResponse {
 message RegionLocation {
 	required RegionInfo region_info = 1;
 	required ServerName server_name = 2;
-	required int64 seq_num = 3;
+	optional int64 seq_num = 3;
 }
 
 message RegionLocations {
