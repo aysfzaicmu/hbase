@@ -158,6 +158,7 @@ import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.ListProced
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.ListTableDescriptorsByNamespaceRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.ListTableNamesByNamespaceRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.LocateMeta1Response;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.LocateMetaResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.MajorCompactionTimestampForRegionRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.MajorCompactionTimestampRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.MergeTableRegionsRequest;
@@ -3857,6 +3858,44 @@ public class HBaseAdmin implements Admin {
         return ReplicationSerDeHelper.convert(response.getPeerConfig());
       }
     });
+  }
+
+  @Override
+  public RegionLocations locateMeta() throws IOException {
+    return executeCallable(
+      new MasterCallable<RegionLocations>(getConnection(), getRpcControllerFactory()) {
+        @Override
+        protected RegionLocations rpcCall() throws Exception {
+          LocateMetaResponse response =
+              master.locateMeta(getRpcController(), RequestConverter.buildLocateMetaRequest());
+          MasterProtos.RegionLocations proto_region_locs = response.getRegionLocations();
+          HRegionLocation[] region_loc_array =
+              new HRegionLocation[proto_region_locs.getLocationsList().size()];
+          int index = 0;
+          for (MasterProtos.RegionLocation rl : proto_region_locs.getLocationsList()) {
+            HBaseProtos.RegionInfo proto_region_info = rl.getRegionInfo();
+            HBaseProtos.TableName proto_table_name = proto_region_info.getTableName();
+            HBaseProtos.ServerName proto_server_name = rl.getServerName();
+
+            long seq_num = rl.getSeqNum(); // add check to see if it is present or not
+            System.out.println("in hbase admin seq num is " + seq_num);
+            // TableName table_name = new TableName(proto_table_name.getNamespace(),
+            // proto_table_name.getQualifier());
+            // TableName table_name = TableName.valueOf(proto_table_name.getNamespace().toString(),
+            // proto_table_name.getQualifier().toString());
+            TableName table_name = ProtobufUtil.toTableName(proto_table_name);
+            // ServerName server_name = ServerName.valueOf(proto_server_name.getHostName(),
+            // proto_server_name.getPort(), proto_server_name.getStartCode());
+            ServerName server_name = ProtobufUtil.toServerName(proto_server_name);
+            HRegionInfo region_info = new HRegionInfo(proto_region_info.getRegionId(), table_name,
+                proto_region_info.getReplicaId());
+            HRegionLocation region_loc = new HRegionLocation(region_info, server_name, seq_num);
+            region_loc_array[index++] = region_loc;
+          }
+          RegionLocations region_locs = new RegionLocations(region_loc_array);
+          return region_locs;
+        }
+      });
   }
 
   @Override

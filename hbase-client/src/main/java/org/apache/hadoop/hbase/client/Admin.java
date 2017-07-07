@@ -1947,6 +1947,10 @@ public interface Admin extends Abortable, Closeable {
     return new ReplicationPeerConfig();
   }
 
+  default RegionLocations locateMeta() throws IOException {
+    return new RegionLocations();
+  }
+
   default RegionLocations locateMeta1() throws IOException {
     return new RegionLocations();
   }

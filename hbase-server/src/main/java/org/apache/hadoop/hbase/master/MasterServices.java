@@ -478,6 +478,8 @@ public interface MasterServices extends Server {
   ReplicationPeerConfig getReplicationPeerConfig(String peerId) throws ReplicationException,
       IOException;
 
+  RegionLocations locateMeta() throws IOException;
+
   RegionLocations locateMeta1() throws IOException;
 
   /**

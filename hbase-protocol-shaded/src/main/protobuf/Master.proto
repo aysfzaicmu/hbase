@@ -177,6 +177,13 @@ message RegionLocations {
 	repeated RegionLocation locations = 1;
 }
 
+message LocateMetaRequest {
+}
+
+message LocateMetaResponse {
+  required RegionLocations region_locations = 1;
+}
+
 message LocateMeta1Request {
 }
 
@@ -987,6 +994,9 @@ service MasterService {
   /** Return peer config for a replication peer */
   rpc GetReplicationPeerConfig(GetReplicationPeerConfigRequest)
     returns(GetReplicationPeerConfigResponse);
+    
+  rpc LocateMeta(LocateMetaRequest)
+    returns(LocateMetaResponse);
 
   rpc LocateMeta1(LocateMeta1Request)
     returns(LocateMeta1Response);

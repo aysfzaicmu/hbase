@@ -125,19 +125,12 @@ public class TestAdmin2 {
     assertEquals(true, result);
   }
 
-  // @Test
-  // public void testLocateMeta() throws IOException {
-  // ReplicationPeerConfig result = admin.locateMeta();
-  // System.out.println("clusterkey is " + result.getClusterKey());
-  // assertEquals("Abcd", result.getClusterKey());
-  // }
-
   @Test
-  public void testLocateMeta1() throws IOException {
-    RegionLocations result = admin.locateMeta1();
+  public void testLocateMeta() throws IOException {
+    RegionLocations result = admin.locateMeta();
     int size = result.getRegionLocations().length;
     HRegionLocation[] rlocs = result.getRegionLocations();
-    System.out.println("region locations: " + rlocs.length);
+    System.out.println("in test locatemeta, region locations: " + rlocs.length);
     for (HRegionLocation hr : rlocs) {
       if (hr != null) {
         ServerName serverName = hr.getServerName();
@@ -149,8 +142,30 @@ public class TestAdmin2 {
 
         System.out.println("in test server,hostname is " + serverName.getHostname());
         System.out.println("in test seq num is " + hr.getSeqNum());
+      } else System.out.println("region loc is null");
+
+    }
+  }
+
+  @Test
+  public void testLocateMeta1() throws IOException {
+    RegionLocations result = admin.locateMeta1();
+    int size = result.getRegionLocations().length;
+    HRegionLocation[] rlocs = result.getRegionLocations();
+    // System.out.println("region locations: " + rlocs.length);
+    for (HRegionLocation hr : rlocs) {
+      if (hr != null) {
+        ServerName serverName = hr.getServerName();
+        HRegionInfo regionInfo = hr.getRegionInfo();
+        String ns = hr.getRegionInfo().getTable().getNamespaceAsString();
+        // System.out.println("in test regioninfo,table,namespace ns is " + ns);
+        // System.out.println("in test regioninfo,regionId is " + regionInfo.getRegionId());
+        // System.out.println("in test regioninfo,replicaId is " + regionInfo.getReplicaId());
+        //
+        // System.out.println("in test server,hostname is " + serverName.getHostname());
+        // System.out.println("in test seq num is " + hr.getSeqNum());
       }
-      else System.out.println("region loc is null");
+      // else System.out.println("region loc is null");
 
     }
   }
