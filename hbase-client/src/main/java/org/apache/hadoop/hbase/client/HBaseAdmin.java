@@ -158,7 +158,6 @@ import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.ListProced
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.ListTableDescriptorsByNamespaceRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.ListTableNamesByNamespaceRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.LocateMeta1Response;
-import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.LocateMetaResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.MajorCompactionTimestampForRegionRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.MajorCompactionTimestampRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.MergeTableRegionsRequest;
@@ -3858,19 +3857,6 @@ public class HBaseAdmin implements Admin {
         return ReplicationSerDeHelper.convert(response.getPeerConfig());
       }
     });
-  }
-
-  @Override
-  public ReplicationPeerConfig locateMeta() throws IOException {
-    return executeCallable(
-      new MasterCallable<ReplicationPeerConfig>(getConnection(), getRpcControllerFactory()) {
-        @Override
-        protected ReplicationPeerConfig rpcCall() throws Exception {
-          LocateMetaResponse response =
-              master.locateMeta(getRpcController(), RequestConverter.buildLocateMetaRequest());
-          return ReplicationSerDeHelper.convert(response.getPeerConfig());
-        }
-      });
   }
 
   @Override

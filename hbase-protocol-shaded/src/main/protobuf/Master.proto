@@ -184,13 +184,6 @@ message LocateMeta1Response {
   required RegionLocations region_locations = 1;
 }
 
-message LocateMetaRequest {
-}
-
-message LocateMetaResponse {
-  required ReplicationPeer peer_config = 1;
-}
-
 message TruncateTableRequest {
   required TableName tableName = 1;
   optional bool preserveSplits = 2 [default = false];
@@ -995,9 +988,6 @@ service MasterService {
   rpc GetReplicationPeerConfig(GetReplicationPeerConfigRequest)
     returns(GetReplicationPeerConfigResponse);
 
-  rpc LocateMeta(LocateMetaRequest)
-    returns(LocateMetaResponse);
-    
   rpc LocateMeta1(LocateMeta1Request)
     returns(LocateMeta1Response);
     

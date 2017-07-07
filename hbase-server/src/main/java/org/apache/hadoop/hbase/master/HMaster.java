@@ -3398,13 +3398,6 @@ public class HMaster extends HRegionServer implements MasterServices {
     return peerConfig;
   }
 
-  @Override
-  public ReplicationPeerConfig locateMeta() throws ReplicationException, IOException {
-    ReplicationPeerConfig result = new ReplicationPeerConfig();
-    result.setClusterKey("Abcd");
-    return result;
-  }
-
   // private static final TableName TABLENAME = TableName.META_TABLE_NAME;
   @Override
   public RegionLocations locateMeta1() throws IOException {

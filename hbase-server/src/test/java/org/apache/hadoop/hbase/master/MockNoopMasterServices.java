@@ -434,11 +434,6 @@ public class MockNoopMasterServices implements MasterServices, Server {
   }
 
   @Override
-  public ReplicationPeerConfig locateMeta() throws ReplicationException, IOException {
-    return null;
-  }
-
-  @Override
   public RegionLocations locateMeta1() throws IOException {
     return null;
   }

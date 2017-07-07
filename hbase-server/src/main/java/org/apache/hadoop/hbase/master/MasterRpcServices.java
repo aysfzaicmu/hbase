@@ -1747,18 +1747,6 @@ public class MasterRpcServices extends RSRpcServices
     return response.build();
   }
 
-  @Override
-  public LocateMetaResponse locateMeta(RpcController controller, LocateMetaRequest request)
-      throws ServiceException {
-    LocateMetaResponse.Builder response = LocateMetaResponse.newBuilder();
-    try {
-      ReplicationPeerConfig peerConfig = master.locateMeta();
-      response.setPeerConfig(ReplicationSerDeHelper.convert(peerConfig));
-    } catch (ReplicationException | IOException e) {
-      throw new ServiceException(e);
-    }
-    return response.build();
-  }
 
   @Override
   public LocateMeta1Response locateMeta1(RpcController controller, LocateMeta1Request request)
