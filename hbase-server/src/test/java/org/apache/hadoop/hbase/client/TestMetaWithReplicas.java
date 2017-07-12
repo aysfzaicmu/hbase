@@ -181,6 +181,7 @@ public class TestMetaWithReplicas {
       util.getAdmin().disableTable(TABLE);
       util.getAdmin().deleteTable(TABLE);
     }
+    System.out.println("in test3 initialized vars");
     ServerName master = null;
     try (Connection c = ConnectionFactory.createConnection(util.getConfiguration());) {
       try (Table htable = util.createTable(TABLE, FAMILIES);) {
@@ -188,7 +189,10 @@ public class TestMetaWithReplicas {
         Thread.sleep(conf.getInt(StorefileRefresherChore.REGIONSERVER_STOREFILE_REFRESH_PERIOD,
             30000) * 6);
         List<HRegionInfo> regions = MetaTableAccessor.getTableRegions(c, TABLE);
+        System.out.println("in test3 regions length is " + regions.size());
         HRegionLocation hrl = MetaTableAccessor.getRegionLocation(c, regions.get(0));
+        System.out.println("in test3 index is " + regions.get(0));
+        System.out.println("in test3 made calls ot metatableaccessor");
         // Ensure that the primary server for test table is not the same one as the primary
         // of the meta region since we will be killing the srv holding the meta's primary...
         // We want to be able to write to the test table even when the meta is not present ..
@@ -209,10 +213,15 @@ public class TestMetaWithReplicas {
         // kill the master so that regionserver recovery is not triggered at all
         // for the meta server
         util.getHBaseClusterInterface().stopMaster(master);
+        System.out.println("in test3 after calling stopMaster");
         util.getHBaseClusterInterface().waitForMasterToStop(master, 60000);
+        System.out.println("in test3 master stopped");
         if (!master.equals(primary)) {
           util.getHBaseClusterInterface().killRegionServer(primary);
+          System.out.println("in test3 killed primary");
           util.getHBaseClusterInterface().waitForRegionServerToStop(primary, 60000);
+          System.out.println("in test3 done waiting for rs to stop");
+
         }
         ((ClusterConnection)c).clearRegionCache();
       }
@@ -223,6 +232,7 @@ public class TestMetaWithReplicas {
         Put put = new Put(row);
         put.addColumn("foo".getBytes(), row, row);
         BufferedMutator m = c.getBufferedMutator(TABLE);
+        System.out.println("in test3 m is " + m.toString());
         m.mutate(put);
         m.flush();
         // Try to do a get of the row that was just put
@@ -231,6 +241,7 @@ public class TestMetaWithReplicas {
         assertTrue(Arrays.equals(r.getRow(), row));
         // now start back the killed servers and disable use of replicas. That would mean
         // calls go to the primary
+        System.out.println("Starting killed servers");
         util.getHBaseClusterInterface().startMaster(master.getHostname(), 0);
         util.getHBaseClusterInterface().startRegionServer(primary.getHostname(), 0);
         util.getHBaseClusterInterface().waitForActiveAndReadyMaster();
@@ -442,6 +453,9 @@ public class TestMetaWithReplicas {
         ConnectionFactory.createConnection(TEST_UTIL.getConfiguration());) {
       RegionLocations rl = conn.
           locateRegion(TableName.META_TABLE_NAME, Bytes.toBytes(""), false, true);
+      System.out.println("region locs " + rl.getRegionLocations());
+      System.out.println("size of region locs " + rl.getRegionLocations().length);
+
       HRegionLocation hrl = rl.getRegionLocation(1);
       ServerName oldServer = hrl.getServerName();
       TEST_UTIL.getHBaseClusterInterface().killRegionServer(oldServer);

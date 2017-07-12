@@ -3866,12 +3866,14 @@ public class HBaseAdmin implements Admin {
       new MasterCallable<RegionLocations>(getConnection(), getRpcControllerFactory()) {
         @Override
         protected RegionLocations rpcCall() throws Exception {
+          System.out.println("in hbase admin entered locatemeta");
           LocateMetaResponse response =
               master.locateMeta(getRpcController(), RequestConverter.buildLocateMetaRequest());
           MasterProtos.RegionLocations proto_region_locs = response.getRegionLocations();
           HRegionLocation[] region_loc_array =
               new HRegionLocation[proto_region_locs.getLocationsList().size()];
           int index = 0;
+          System.out.println("in hbase admin before for loop");
           for (MasterProtos.RegionLocation rl : proto_region_locs.getLocationsList()) {
             HBaseProtos.RegionInfo proto_region_info = rl.getRegionInfo();
             HBaseProtos.TableName proto_table_name = proto_region_info.getTableName();

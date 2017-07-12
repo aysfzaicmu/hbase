@@ -43,7 +43,6 @@ import org.apache.hadoop.hbase.RegionLocations;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.Waiter;
-
 import org.apache.hadoop.hbase.client.replication.ReplicationAdmin;
 import org.apache.hadoop.hbase.coprocessor.ObserverContext;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
@@ -702,10 +701,11 @@ public class TestReplicaWithCluster {
       RegionLocations mrl = ((ClusterConnection) HTU.getConnection())
           .locateRegion(TableName.META_TABLE_NAME,
               HConstants.EMPTY_START_ROW, false, false);
-
+      System.out.println("in testreplicawithcluster, got meta location");
       // Get user table location
       RegionLocations url = ((ClusterConnection) HTU.getConnection())
           .locateRegion(hdt.getTableName(), row, false, false);
+      System.out.println("in testreplicawithcluster, got user table location");
 
       // Make sure that user primary region is co-hosted with the meta region
       if (!url.getDefaultRegionLocation().getServerName().equals(
@@ -721,7 +721,7 @@ public class TestReplicaWithCluster {
         HTU.moveRegionAndWait(url.getRegionLocation(1).getRegionInfo(),
             url.getDefaultRegionLocation().getServerName());
       }
-
+      System.out.println("in testreplicawithcluster, before while loop");
       // Wait until the meta table is updated with new location info
       while (true) {
         mrl = ((ClusterConnection) HTU.getConnection())

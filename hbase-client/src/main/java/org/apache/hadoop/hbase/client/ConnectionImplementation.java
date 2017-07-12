@@ -776,7 +776,8 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       }
 
       // Look up from zookeeper
-      locations = this.registry.getMetaRegionLocation();
+      // locations = this.registry.getMetaRegionLocation();
+      locations = this.getAdmin().locateMeta();
       if (locations != null) {
         cacheLocation(tableName, locations);
       }

@@ -79,6 +79,7 @@ import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.UnknownRegionException;
 import org.apache.hadoop.hbase.classification.InterfaceAudience;
 import org.apache.hadoop.hbase.client.MasterSwitchType;
+import org.apache.hadoop.hbase.client.RegionReplicaUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.TableState;
 import org.apache.hadoop.hbase.coprocessor.BypassCoprocessorException;
@@ -254,6 +255,7 @@ public class HMaster extends HRegionServer implements MasterServices {
       this.haltOnTimeout = master.getConfiguration().getBoolean(HALT_KEY, HALT_DEFAULT);
       this.setDaemon(true);
     }
+
 
     @Override
     public void run() {
@@ -527,6 +529,7 @@ public class HMaster extends HRegionServer implements MasterServices {
     } else {
       activeMasterManager = null;
     }
+
   }
 
   // return the actual infoPort, -1 means disable info server.
@@ -3401,22 +3404,66 @@ public class HMaster extends HRegionServer implements MasterServices {
   // private static final TableName TABLENAME = TableName.META_TABLE_NAME;
   @Override
   public RegionLocations locateMeta() throws IOException {
-
+    System.out.println("entered locatemeta in master");
+    // List<HRegionLocation> reg_locs = new ArrayList<HRegionLocation>();
+    // MetaTableLocator locator = this.getMetaTableLocator();
+    // List<Pair<HRegionInfo, ServerName>> meta_info =
+    // locator.getMetaRegionsAndLocations(this.zooKeeper);
+    // for (Pair<HRegionInfo, ServerName> pair : meta_info) {
+    // System.out.println(
+    // "in master, hregion info is " + pair.getFirst() + " server name is " + pair.getSecond());
+    // HRegionLocation reg_loc = new HRegionLocation(pair.getFirst(), pair.getSecond());
+    // reg_locs.add(reg_loc);
     //
-    // HRegionInfo info = new HRegionInfo(1, TABLENAME, 20); //define tablename
-    // HRegionLocation region_loc = new HRegionLocation(info, this.serverName, 44);
-    // RegionLocations region_locs = new RegionLocations(region_loc);
-    // return region_locs;
-    List<HRegionLocation> reg_locs = new ArrayList<HRegionLocation>();
-    MetaTableLocator locator = this.getMetaTableLocator();
-    List<Pair<HRegionInfo, ServerName>> meta_info =
-        locator.getMetaRegionsAndLocations(this.zooKeeper);
-    for (Pair<HRegionInfo, ServerName> pair : meta_info) {
-      HRegionLocation reg_loc = new HRegionLocation(pair.getFirst(), pair.getSecond());
-      reg_locs.add(reg_loc);
+    // }
+    // return new RegionLocations(reg_locs);
+
+    ZooKeeperWatcher zkw = this.zooKeeper;
+    // ZooKeeperAliveConnection keepAliveZookeeper = new ZooKeeperKeepAliveConnection(conf,
+    // this.toString(), this.getConnection());
+    try {
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Looking up meta region location in ZK," + " connection=" + this);
+      }
+      List<ServerName> servers = new MetaTableLocator().blockUntilAvailable(zkw,
+        this.getConfiguration().getInt(HConstants.HBASE_RPC_TIMEOUT_KEY,
+          HConstants.DEFAULT_HBASE_RPC_TIMEOUT),
+        this.getConfiguration());
+      // List<ServerName> servers =
+      // new MetaTableLocator().blockUntilAvailable(zkw, 5000, this.getConfiguration());
+      System.out.println("in master, got servers len " + servers.size());
+      if (LOG.isTraceEnabled()) {
+        if (servers == null) {
+          LOG.trace("Looked up meta region location, connection=" + this + "; servers = null");
+        } else {
+          StringBuilder str = new StringBuilder();
+          for (ServerName s : servers) {
+            str.append(s.toString());
+            str.append(" ");
+          }
+          LOG.trace(
+            "Looked up meta region location, connection=" + this + "; servers = " + str.toString());
+        }
+      }
+      if (servers == null) return null;
+      HRegionLocation[] locs = new HRegionLocation[servers.size()];
+      int i = 0;
+      for (ServerName server : servers) {
+        HRegionInfo h =
+            RegionReplicaUtil.getRegionInfoForReplica(HRegionInfo.FIRST_META_REGIONINFO, i);
+        if (server == null) locs[i++] = null;
+        else locs[i++] = new HRegionLocation(h, server, 0);
+      }
+      System.out.println("in master, size of locs: " + locs.length);
+      return new RegionLocations(locs);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return null;
+    } finally {
+      // zkw.close();
+      System.out.println("Master done with locateMeta");
 
     }
-    return new RegionLocations(reg_locs);
   }
 
   // private static final TableName TABLENAME = TableName.META_TABLE_NAME;
