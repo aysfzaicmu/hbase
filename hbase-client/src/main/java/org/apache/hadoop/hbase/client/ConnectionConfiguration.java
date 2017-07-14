@@ -104,6 +104,7 @@ public class ConnectionConfiguration {
    */
   @VisibleForTesting
   protected ConnectionConfiguration() {
+
     this.writeBufferSize = WRITE_BUFFER_SIZE_DEFAULT;
     this.metaOperationTimeout = HConstants.DEFAULT_HBASE_CLIENT_OPERATION_TIMEOUT;
     this.operationTimeout = HConstants.DEFAULT_HBASE_CLIENT_OPERATION_TIMEOUT;

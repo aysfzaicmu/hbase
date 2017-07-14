@@ -192,7 +192,6 @@ public class TestMetaWithReplicas {
         System.out.println("in test3 regions length is " + regions.size());
         HRegionLocation hrl = MetaTableAccessor.getRegionLocation(c, regions.get(0));
         System.out.println("in test3 index is " + regions.get(0));
-        System.out.println("in test3 made calls ot metatableaccessor");
         // Ensure that the primary server for test table is not the same one as the primary
         // of the meta region since we will be killing the srv holding the meta's primary...
         // We want to be able to write to the test table even when the meta is not present ..

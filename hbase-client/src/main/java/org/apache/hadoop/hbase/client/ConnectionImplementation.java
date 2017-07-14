@@ -315,6 +315,23 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       close();
       throw e;
     }
+    // conf.set("hbase.master.locations", "test-location");
+    // System.out.println("in client, masters locs are " + conf.get("hbase.master.locations"));
+
+    // ClusterStatus clusterStatus = this.getAdmin().getClusterStatus();
+    // if (clusterStatus != null) {
+    // System.out.println("got CS");
+    // Collection<ServerName> master_locs = clusterStatus.getBackupMasters();
+    // ServerName active_master = clusterStatus.getMaster();
+    // master_locs.add(active_master);
+    //
+    // for (ServerName sN : master_locs) {
+    // System.out.println("in client server name is " + sN.getHostname());
+    // System.out.println("in client port is " + sN.getPort());
+    //
+    // }
+    // }
+
   }
 
   /**
@@ -432,6 +449,7 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       coreThreads = Runtime.getRuntime().availableProcessors() * 8;
     }
     long keepAliveTime = conf.getLong("hbase.hconnection.threads.keepalivetime", 60);
+
     BlockingQueue<Runnable> workQueue = passedWorkQueue;
     if (workQueue == null) {
       workQueue =
@@ -775,9 +793,29 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
         }
       }
 
+
       // Look up from zookeeper
       // locations = this.registry.getMetaRegionLocation();
+      // Connection conn2 = this.getAdmin().getConnection();
+      // System.out.println("in client, got connection");
+      // ClusterStatus locations22 = this.getAdmin().getClusterStatus();
+
+      // contact each master and see if it is active
+      // if active, make call
+      // catch timeout exception
+
+      // String conf_master_locs = conf.get("hbase.master.all");
+      // System.out.println("master locs " + conf_master_locs);
+      // String[] master_locs = conf_master_locs.split(",");
+      // for (String loc : master_locs) {
+      // ServerName sN = ServerName.valueOf(loc);
+      // }
+
+
       locations = this.getAdmin().locateMeta();
+      System.out.println("in client, called meta. calling cS");
+      // int cSize = this.getAdmin().getClusterStatus().getBackupMastersSize();
+      // System.out.println("in client, cSize is " + cSize);
       if (locations != null) {
         cacheLocation(tableName, locations);
       }
@@ -1166,6 +1204,26 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
      * @throws org.apache.hadoop.hbase.MasterNotRunningException if master is not running
      */
     MasterProtos.MasterService.BlockingInterface makeStub() throws IOException {
+      // The lock must be at the beginning to prevent multiple master creations
+      // (and leaks) in a multithread context
+      synchronized (masterAndZKLock) {
+        Exception exceptionCaught = null;
+        if (!closed) {
+          try {
+            return makeStubNoRetries();
+          } catch (IOException e) {
+            exceptionCaught = e;
+          } catch (KeeperException e) {
+            exceptionCaught = e;
+          }
+          throw new MasterNotRunningException(exceptionCaught);
+        } else {
+          throw new DoNotRetryIOException("Connection was closed while trying to get master");
+        }
+      }
+    }
+
+    MasterProtos.MasterService.BlockingInterface makeStub2() throws IOException {
       // The lock must be at the beginning to prevent multiple master creations
       // (and leaks) in a multithread context
       synchronized (masterAndZKLock) {
