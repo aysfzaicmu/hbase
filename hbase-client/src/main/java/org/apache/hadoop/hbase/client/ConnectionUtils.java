@@ -221,6 +221,7 @@ public final class ConnectionUtils {
     // Also, include the hostname in the key so as to take care of those cases where the
     // DNS name is different but IP address remains the same.
     String hostname = serverName.getHostname();
+    System.out.println("in ConnectionUtils, hostname " + hostname);
     int port = serverName.getPort();
     if (hostnameCanChange) {
       try {

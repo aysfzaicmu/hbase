@@ -78,6 +78,8 @@ import org.apache.hadoop.hbase.shaded.protobuf.generated.ClientProtos.ClientServ
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.DrainRegionServersRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.DrainRegionServersResponse;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsActiveMasterRequest;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsActiveMasterResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsBalancerEnabledRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsBalancerEnabledResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsNormalizerEnabledRequest;
@@ -1819,6 +1821,11 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
         return stub.getReplicationPeerConfig(controller, request);
       }
 
+      @Override
+      public IsActiveMasterResponse isActiveMaster(RpcController controller,
+          IsActiveMasterRequest request) throws ServiceException {
+        return stub.isActiveMaster(controller, request);
+      }
 
       @Override
       public LocateMetaResponse locateMeta(RpcController controller, LocateMetaRequest request)

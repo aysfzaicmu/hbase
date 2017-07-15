@@ -1748,6 +1748,17 @@ public class MasterRpcServices extends RSRpcServices
   }
 
   @Override
+  public IsActiveMasterResponse isActiveMaster(RpcController c, IsActiveMasterRequest req)
+      throws ServiceException {
+    try {
+      boolean isActive = master.isActiveMaster();
+      return IsActiveMasterResponse.newBuilder().setIsActive(isActive).build();
+    } catch (Exception e) {
+      throw new ServiceException(e);
+    }
+  }
+
+  @Override
   public LocateMetaResponse locateMeta(RpcController controller, LocateMetaRequest request)
       throws ServiceException {
     LocateMetaResponse.Builder response = LocateMetaResponse.newBuilder();
