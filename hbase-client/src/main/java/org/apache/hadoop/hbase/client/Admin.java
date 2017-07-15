@@ -2065,4 +2065,6 @@ public interface Admin extends Abortable, Closeable {
    */
   void clearCompactionQueues(final ServerName sn, final Set<String> queues)
     throws IOException, InterruptedException;
+
+  boolean isActiveMaster() throws IOException;
 }

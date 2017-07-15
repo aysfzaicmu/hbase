@@ -144,6 +144,8 @@ import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.GetSchemaA
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.GetTableDescriptorsRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.GetTableDescriptorsResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.GetTableNamesRequest;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsActiveMasterResponse;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsActiveMasterResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsInMaintenanceModeRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsInMaintenanceModeResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsProcedureDoneRequest;
@@ -3856,6 +3858,20 @@ public class HBaseAdmin implements Admin {
         GetReplicationPeerConfigResponse response = master.getReplicationPeerConfig(
           getRpcController(), RequestConverter.buildGetReplicationPeerConfigRequest(peerId));
         return ReplicationSerDeHelper.convert(response.getPeerConfig());
+      }
+    });
+  }
+
+
+  @Override
+  public boolean isActiveMaster() throws IOException {
+    return executeCallable(new MasterCallable<Boolean>(getConnection(), getRpcControllerFactory()) {
+      @Override
+      protected Boolean rpcCall() throws Exception {
+        IsActiveMasterResponse response = master.isActiveMaster(getRpcController(),
+          RequestConverter.buildIsActiveMasterRequest());
+
+        return response.getIsActive();
       }
     });
   }

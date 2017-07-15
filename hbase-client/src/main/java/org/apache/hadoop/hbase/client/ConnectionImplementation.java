@@ -813,6 +813,7 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       // ServerName sN = ServerName.valueOf(loc);
       // }
 
+      System.out.println("in client isActiveMaster is " + this.getAdmin().isActiveMaster());
 
       locations = this.getAdmin().locateMeta();
       System.out.println("in client, called meta. calling cS");

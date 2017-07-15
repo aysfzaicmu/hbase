@@ -99,6 +99,7 @@ import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.GetSchemaA
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.GetTableDescriptorsRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.GetTableNamesRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.GetTableStateRequest;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsActiveMasterRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsBalancerEnabledRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsCatalogJanitorEnabledRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsCleanerChoreEnabledRequest;
@@ -1370,6 +1371,10 @@ public final class RequestConverter {
    */
   public static IsMasterRunningRequest buildIsMasterRunningRequest() {
     return IsMasterRunningRequest.newBuilder().build();
+  }
+
+  public static IsActiveMasterRequest buildIsActiveMasterRequest() {
+    return IsActiveMasterRequest.newBuilder().build();
   }
 
   /**
