@@ -209,6 +209,8 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
 
   private final RetryingCallerInterceptor interceptor;
 
+  private ServerName currMasterServerName;
+
   /**
    * Cluster registry of basic info such as clusterid and meta region location.
    */
@@ -226,6 +228,7 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
    * constructor
    * @param conf Configuration object
    */
+
   ConnectionImplementation(Configuration conf,
                            ExecutorService pool, User user) throws IOException {
     this.conf = conf;
@@ -316,6 +319,11 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       LOG.debug("connection construction failed", e);
       close();
       throw e;
+    }
+
+    currMasterServerName = null;
+    if (conf.get("hbase.master.all") != null) {
+      System.out.println("in client, hbase.master.all is " + conf.get("hbase.master.all"));
     }
     // conf.set("hbase.master.locations", "test-location");
     // System.out.println("in client, masters locs are " + conf.get("hbase.master.locations"));
@@ -770,7 +778,8 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
     }
   }
 
-  private RegionLocations locateMeta(final TableName tableName,
+  @VisibleForTesting
+  RegionLocations locateMeta(final TableName tableName,
       boolean useCache, int replicaId) throws IOException {
     // HBASE-10785: We cache the location of the META itself, so that we are not overloading
     // zookeeper with one request for every region lookup. We cache the META with empty row
@@ -806,14 +815,40 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       // if active, make call
       // catch timeout exception
 
-      // String conf_master_locs = conf.get("hbase.master.all");
-      // System.out.println("master locs " + conf_master_locs);
-      // String[] master_locs = conf_master_locs.split(",");
-      // for (String loc : master_locs) {
-      // ServerName sN = ServerName.valueOf(loc);
-      // }
+      System.out.println("original master port is " + this.getAdmin().getMasterInfoPort());
 
-      System.out.println("in client isActiveMaster is " + this.getAdmin().isActiveMaster());
+      String conf_master_locs = conf.get("hbase.master.all");
+      if (conf_master_locs != null) {
+        String[] master_locs = conf_master_locs.split(";");
+        for (String loc : master_locs) {
+          String[] sNprops = loc.split(",");
+          String hostname = sNprops[0];
+          int port = Integer.parseInt(sNprops[1]);
+          int startcode = Integer.parseInt(sNprops[2]);
+          System.out.println("in client calling master with hostname " + hostname + " port " + port
+              + " startcode " + startcode);
+          currMasterServerName = ServerName.valueOf(hostname, port, startcode);
+          boolean isMasterActive = this.getAdmin().isActiveMaster();
+          System.out.println("in client, master is active? " + isMasterActive);
+
+          if (isMasterActive) break;
+
+        }
+      }
+      // for (String loc : masterLocations) {
+      // String[] sNprops = loc.split(",");
+      // String hostname = sNprops[0];
+      // int port = Integer.parseInt(sNprops[1]);
+      // int startcode = Integer.parseInt(sNprops[2]);
+      // System.out.println("in client calling master with hostname " + hostname + " port " + port
+      // + " startcode " + startcode);
+      // currMasterServerName = ServerName.valueOf(hostname, port, startcode);
+      // boolean isMasterActive = this.getAdmin().isActiveMaster();
+      // System.out.println("in client, master is active? " + isMasterActive);
+      //
+      // if (isMasterActive) break;
+      //
+      // }
 
       locations = this.getAdmin().locateMeta();
       System.out.println("in client, called meta. calling cS");
@@ -1166,7 +1201,7 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
      * services nor their interfaces. Let the caller do appropriate casting.
      * @return A stub for master services.
      */
-    private MasterProtos.MasterService.BlockingInterface makeStubNoRetries()
+    private MasterProtos.MasterService.BlockingInterface makeStubNoRetries(ServerName sN)
         throws IOException, KeeperException {
       ZooKeeperKeepAliveConnection zkw;
       try {
@@ -1177,7 +1212,7 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       }
       try {
         checkIfBaseNodeAvailable(zkw);
-        ServerName sn = MasterAddressTracker.getMasterAddress(zkw);
+        ServerName sn = (sN != null) ? sN : MasterAddressTracker.getMasterAddress(zkw);
         if (sn == null) {
           String msg = "ZooKeeper available but no active master location found";
           LOG.info(msg);
@@ -1187,6 +1222,7 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
           throw new MasterNotRunningException(sn + " is dead.");
         }
         // Use the security info interface name as our stub key
+        System.out.println("in makeStubNoRetries sN is " + sn);
         String key = getStubKey(MasterProtos.MasterService.getDescriptor().getName(), sn,
           hostnamesCanChange);
         MasterProtos.MasterService.BlockingInterface stub =
@@ -1206,14 +1242,14 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
      * @return A stub to do <code>intf</code> against the master
      * @throws org.apache.hadoop.hbase.MasterNotRunningException if master is not running
      */
-    MasterProtos.MasterService.BlockingInterface makeStub() throws IOException {
+    MasterProtos.MasterService.BlockingInterface makeStub(ServerName sN) throws IOException {
       // The lock must be at the beginning to prevent multiple master creations
       // (and leaks) in a multithread context
       synchronized (masterAndZKLock) {
         Exception exceptionCaught = null;
         if (!closed) {
           try {
-            return makeStubNoRetries();
+            return makeStubNoRetries(sN);
           } catch (IOException e) {
             exceptionCaught = e;
           } catch (KeeperException e) {
@@ -1226,25 +1262,6 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       }
     }
 
-    MasterProtos.MasterService.BlockingInterface makeStub2() throws IOException {
-      // The lock must be at the beginning to prevent multiple master creations
-      // (and leaks) in a multithread context
-      synchronized (masterAndZKLock) {
-        Exception exceptionCaught = null;
-        if (!closed) {
-          try {
-            return makeStubNoRetries();
-          } catch (IOException e) {
-            exceptionCaught = e;
-          } catch (KeeperException e) {
-            exceptionCaught = e;
-          }
-          throw new MasterNotRunningException(exceptionCaught);
-        } else {
-          throw new DoNotRetryIOException("Connection was closed while trying to get master");
-        }
-      }
-    }
   }
 
   @Override
@@ -1336,7 +1353,8 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       if (!isKeepAliveMasterConnectedAndRunning(this.masterServiceState)) {
         MasterServiceStubMaker stubMaker = new MasterServiceStubMaker();
         try {
-          this.masterServiceState.stub = stubMaker.makeStub();
+          System.out.println("in CI, getKeepAliveMasterSer. with currServername " + currMasterServerName);
+          this.masterServiceState.stub = stubMaker.makeStub(currMasterServerName);
         } catch (MasterNotRunningException ex) {
           throw ex;
         } catch (IOException e) {

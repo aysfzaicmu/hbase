@@ -275,6 +275,9 @@ public interface ClusterConnection extends Connection {
   MasterKeepAliveConnection getKeepAliveMasterService()
   throws MasterNotRunningException;
 
+  // MasterKeepAliveConnection getKeepAliveMasterService(ServerName sN)
+  // throws MasterNotRunningException;
+
   /**
    * @param serverName of server to check
    * @return true if the server is known as dead, false otherwise.
