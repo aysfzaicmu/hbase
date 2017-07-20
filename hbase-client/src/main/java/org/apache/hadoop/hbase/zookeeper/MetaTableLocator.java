@@ -556,9 +556,7 @@ public class MetaTableLocator {
     List<ServerName> servers = new ArrayList<>();
     // Make the blocking call first so that we do the wait to know
     // the znodes are all in place or timeout.
-    System.out.println("in metatablelocator before call");
     ServerName server = blockUntilAvailable(zkw, timeout);
-    System.out.println("in metatablelocator after call");
     if (server == null) return null;
     servers.add(server);
 
@@ -604,10 +602,7 @@ public class MetaTableLocator {
     long startTime = System.currentTimeMillis();
     ServerName sn = null;
     while (true) {
-      System.out.println("in metatablelocator, before calling getMetaregionlocation");
       sn = getMetaRegionLocation(zkw, replicaId);
-      System.out.println("in metatablelocator, after calling getMetaregionlocation, sn is " + sn);
-
       if (sn != null || (System.currentTimeMillis() - startTime)
           > timeout - HConstants.SOCKET_RETRY_WAIT_MS) {
         break;

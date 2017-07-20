@@ -1763,13 +1763,10 @@ public class MasterRpcServices extends RSRpcServices
       throws ServiceException {
     LocateMetaResponse.Builder response = LocateMetaResponse.newBuilder();
     try {
-      System.out.println("in masterrpcservices calling master locate meta");
       RegionLocations region_locs = master.locateMeta();
-      System.out.println("in mrpcs size of locs is " + region_locs.getRegionLocations().length);
       MasterProtos.RegionLocations.Builder regLocsBuilder =
           MasterProtos.RegionLocations.newBuilder();
       for (HRegionLocation rl : region_locs.getRegionLocations()) {
-        System.out.println("in masterrpcservices in for loop with rl " + rl);
         if (rl != null) {
           // build Proto for RegionInfo and ServerName then add to RegionLocation Proto
           // HBaseProtos.ServerName.Builder serverNameBuilder = HBaseProtos.ServerName.newBuilder();
@@ -1783,11 +1780,7 @@ public class MasterRpcServices extends RSRpcServices
           byte[] qualifier = regionInfo.getTable().getQualifier();
           String qualifierString =
               new String(qualifier, 0, qualifier.length, StandardCharsets.UTF_8);
-          System.out.println("namespace is " + nsString);
-          System.out.println("regionId is " + regionInfo.getRegionId());
-          System.out.println("replicaId is " + regionInfo.getReplicaId());
-          System.out.println("server hostname is " + rl.getServerName().getHostname());
-          System.out.println("seq num is " + rl.getSeqNum());
+
 
           // ByteString namespaceBS =
           // ByteString.copyFromUtf8(nsString);
@@ -1835,7 +1828,7 @@ public class MasterRpcServices extends RSRpcServices
     LocateMeta1Response.Builder response = LocateMeta1Response.newBuilder();
     try {
       RegionLocations region_locs = master.locateMeta1();
-      System.out.println("in mrpcs size of locs is " + region_locs.getRegionLocations().length);
+      // System.out.println("in mrpcs size of locs is " + region_locs.getRegionLocations().length);
       MasterProtos.RegionLocations.Builder regLocsBuilder =
           MasterProtos.RegionLocations.newBuilder();
       for (HRegionLocation rl : region_locs.getRegionLocations()) {
@@ -1852,11 +1845,11 @@ public class MasterRpcServices extends RSRpcServices
           byte[] qualifier = regionInfo.getTable().getQualifier();
           String qualifierString =
               new String(qualifier, 0, qualifier.length, StandardCharsets.UTF_8);
-          System.out.println("namespace is " + nsString);
-          System.out.println("regionId is " + regionInfo.getRegionId());
-          System.out.println("replicaId is " + regionInfo.getReplicaId());
-          System.out.println("server hostname is " + rl.getServerName().getHostname());
-          System.out.println("seq num is " + rl.getSeqNum());
+          // System.out.println("namespace is " + nsString);
+          // System.out.println("regionId is " + regionInfo.getRegionId());
+          // System.out.println("replicaId is " + regionInfo.getReplicaId());
+          // System.out.println("server hostname is " + rl.getServerName().getHostname());
+          // System.out.println("seq num is " + rl.getSeqNum());
 
           // ByteString namespaceBS =
           // ByteString.copyFromUtf8(nsString);

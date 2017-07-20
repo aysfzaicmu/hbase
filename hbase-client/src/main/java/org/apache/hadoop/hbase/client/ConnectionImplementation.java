@@ -323,7 +323,7 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
 
     currMasterServerName = null;
     if (conf.get("hbase.master.all") != null) {
-      System.out.println("in client, hbase.master.all is " + conf.get("hbase.master.all"));
+      System.out.println("starting new conn,hbase.master.all is " + conf.get("hbase.master.all"));
     }
     // conf.set("hbase.master.locations", "test-location");
     // System.out.println("in client, masters locs are " + conf.get("hbase.master.locations"));
@@ -815,45 +815,26 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       // if active, make call
       // catch timeout exception
 
-      System.out.println("original master port is " + this.getAdmin().getMasterInfoPort());
 
-      String conf_master_locs = conf.get("hbase.master.all");
-      if (conf_master_locs != null) {
-        String[] master_locs = conf_master_locs.split(";");
-        for (String loc : master_locs) {
-          String[] sNprops = loc.split(",");
-          String hostname = sNprops[0];
-          int port = Integer.parseInt(sNprops[1]);
-          int startcode = Integer.parseInt(sNprops[2]);
-          System.out.println("in client calling master with hostname " + hostname + " port " + port
-              + " startcode " + startcode);
-          currMasterServerName = ServerName.valueOf(hostname, port, startcode);
-          boolean isMasterActive = this.getAdmin().isActiveMaster();
-          System.out.println("in client, master is active? " + isMasterActive);
+      // String conf_master_locs = conf.get("hbase.master.all");
 
-          if (isMasterActive) break;
-
-        }
-      }
-      // for (String loc : masterLocations) {
+      // if (conf_master_locs != null) {
+      // String[] master_locs = conf_master_locs.split(";");
+      //
+      // for (String loc : master_locs) {
       // String[] sNprops = loc.split(",");
       // String hostname = sNprops[0];
       // int port = Integer.parseInt(sNprops[1]);
-      // int startcode = Integer.parseInt(sNprops[2]);
-      // System.out.println("in client calling master with hostname " + hostname + " port " + port
-      // + " startcode " + startcode);
+      // long startcode = Long.parseLong(sNprops[2]);
+      //
       // currMasterServerName = ServerName.valueOf(hostname, port, startcode);
       // boolean isMasterActive = this.getAdmin().isActiveMaster();
-      // System.out.println("in client, master is active? " + isMasterActive);
       //
       // if (isMasterActive) break;
       //
       // }
-
+      // }
       locations = this.getAdmin().locateMeta();
-      System.out.println("in client, called meta. calling cS");
-      // int cSize = this.getAdmin().getClusterStatus().getBackupMastersSize();
-      // System.out.println("in client, cSize is " + cSize);
       if (locations != null) {
         cacheLocation(tableName, locations);
       }
@@ -1201,7 +1182,7 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
      * services nor their interfaces. Let the caller do appropriate casting.
      * @return A stub for master services.
      */
-    private MasterProtos.MasterService.BlockingInterface makeStubNoRetries(ServerName sN)
+    private MasterProtos.MasterService.BlockingInterface makeStubNoRetries()
         throws IOException, KeeperException {
       ZooKeeperKeepAliveConnection zkw;
       try {
@@ -1211,23 +1192,69 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
         throw new ZooKeeperConnectionException("Can't connect to ZooKeeper", e);
       }
       try {
+        // old way
         checkIfBaseNodeAvailable(zkw);
-        ServerName sn = (sN != null) ? sN : MasterAddressTracker.getMasterAddress(zkw);
-        if (sn == null) {
-          String msg = "ZooKeeper available but no active master location found";
-          LOG.info(msg);
-          throw new MasterNotRunningException(msg);
+        ServerName sn = MasterAddressTracker.getMasterAddress(zkw);
+
+        // new way
+        String conf_master_locs = conf.get("hbase.master.all");
+
+        if (conf_master_locs != null) {
+          System.out.println("client calling makeStubNoRetries");
+          String[] master_locs = conf_master_locs.split(";");
+
+          for (String loc : master_locs) {
+            String[] sNprops = loc.split(",");
+            String hostname = sNprops[0];
+            int port = Integer.parseInt(sNprops[1]);
+            long startcode = Long.parseLong(sNprops[2]);
+            System.out
+                .println(
+                  "client in makeStubNoRetries calling master with hostname " + hostname + " port "
+                + port + " startcode " + startcode);
+            currMasterServerName = ServerName.valueOf(hostname, port, startcode);
+            System.out
+                .println(
+                  "client in makeStubNoRetries currMasterservername is " + currMasterServerName);
+
+            if (currMasterServerName == null) {
+              String msg = "ZooKeeper available but no active master location found";
+              LOG.info(msg);
+              throw new MasterNotRunningException(msg);
+            }
+            if (isDeadServer(currMasterServerName)) {
+              System.out.println(currMasterServerName + " is dead");
+              throw new MasterNotRunningException(sn + " is dead.");
+            }
+
+            break;
+          }
         }
-        if (isDeadServer(sn)) {
-          throw new MasterNotRunningException(sn + " is dead.");
+        
+        else{
+          // server uses ZK
+          currMasterServerName = MasterAddressTracker.getMasterAddress(zkw);
+          System.out
+              .println("Server is calling makeStubNoRetries with master " + currMasterServerName);
+          
         }
+
+        // if (sn == null) {
+        // String msg = "ZooKeeper available but no active master location found";
+        // LOG.info(msg);
+        // throw new MasterNotRunningException(msg);
+        // }
+        // if (isDeadServer(sn)) {
+        // throw new MasterNotRunningException(sn + " is dead.");
+        // }
         // Use the security info interface name as our stub key
-        System.out.println("in makeStubNoRetries sN is " + sn);
-        String key = getStubKey(MasterProtos.MasterService.getDescriptor().getName(), sn,
+        String key =
+            getStubKey(MasterProtos.MasterService.getDescriptor().getName(), currMasterServerName,
           hostnamesCanChange);
         MasterProtos.MasterService.BlockingInterface stub =
             (MasterProtos.MasterService.BlockingInterface) computeIfAbsentEx(stubs, key, () -> {
-              BlockingRpcChannel channel = rpcClient.createBlockingRpcChannel(sn, user, rpcTimeout);
+              BlockingRpcChannel channel =
+                  rpcClient.createBlockingRpcChannel(currMasterServerName, user, rpcTimeout);
               return MasterProtos.MasterService.newBlockingStub(channel);
             });
         isMasterRunning(stub);
@@ -1242,14 +1269,14 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
      * @return A stub to do <code>intf</code> against the master
      * @throws org.apache.hadoop.hbase.MasterNotRunningException if master is not running
      */
-    MasterProtos.MasterService.BlockingInterface makeStub(ServerName sN) throws IOException {
+    MasterProtos.MasterService.BlockingInterface makeStub() throws IOException {
       // The lock must be at the beginning to prevent multiple master creations
       // (and leaks) in a multithread context
       synchronized (masterAndZKLock) {
         Exception exceptionCaught = null;
         if (!closed) {
           try {
-            return makeStubNoRetries(sN);
+            return makeStubNoRetries();
           } catch (IOException e) {
             exceptionCaught = e;
           } catch (KeeperException e) {
@@ -1349,13 +1376,18 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
   @Override
   public MasterKeepAliveConnection getKeepAliveMasterService()
   throws MasterNotRunningException {
+    System.out.println("in getKeepAliveMasterService");
     synchronized (masterAndZKLock) {
+      // if (conf.get("hbase.master.all") != null)
+      // System.out.println("client calling getkeepalivemaster");
+      // System.out.println("inside lock, master alive :"
+      // + isKeepAliveMasterConnectedAndRunning(this.masterServiceState));
       if (!isKeepAliveMasterConnectedAndRunning(this.masterServiceState)) {
         MasterServiceStubMaker stubMaker = new MasterServiceStubMaker();
         try {
-          System.out.println("in CI, getKeepAliveMasterSer. with currServername " + currMasterServerName);
-          this.masterServiceState.stub = stubMaker.makeStub(currMasterServerName);
+          this.masterServiceState.stub = stubMaker.makeStub();
         } catch (MasterNotRunningException ex) {
+          System.out.println("master is not running");
           throw ex;
         } catch (IOException e) {
           // rethrow as MasterNotRunningException so that we can keep the method sig

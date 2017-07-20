@@ -2,7 +2,6 @@ package org.apache.hadoop.hbase.client;
 
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -10,7 +9,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.MiniHBaseCluster;
 import org.apache.hadoop.hbase.RegionLocations;
@@ -61,8 +59,13 @@ public class TestFindActiveMaster {
     Configuration conf = TEST_UTIL.getConfiguration();
     String master_locs = constructMasterLocsStr();
     conf.set("hbase.master.all", master_locs);
-    // this.admin = TEST_UTIL.getHBaseAdmin();
-    conn = (ConnectionImplementation) ConnectionFactory.createConnection(conf);// PASS IN CLONED
+
+    Configuration newConf = new Configuration(conf);
+    newConf.set("hbase.master.all", master_locs);
+
+    conn = (ConnectionImplementation) ConnectionFactory.createConnection(newConf);
+
+    // conn = (ConnectionImplementation) ConnectionFactory.createConnection(conf);// PASS IN CLONED
     this.admin = conn.getAdmin(); // VERSIONNNNNNN
 
   }
@@ -83,11 +86,13 @@ public class TestFindActiveMaster {
     HTableDescriptor htd1 = new HTableDescriptor(TableName.valueOf(name));
     htd1.addFamily(new HColumnDescriptor(HConstants.CATALOG_FAMILY));
     this.admin.createTable(htd1);
-    conn.getTable(htd1.getTableName()).close();
+    // conn.getTable(htd1.getTableName()).close();
 
     Table table1 = conn.getTable(TableName.valueOf(name));
-    List<HRegionLocation> table1Loc = conn.locateRegions(table1.getName());
-    RegionLocations metaLocs = conn.locateMeta(table1.getName(),false,-1);
+    // List<HRegionLocation> table1Loc = conn.locateRegions(table1.getName());
+    RegionLocations metaLocs = conn.locateMeta(table1.getName(), false, -1);
+    // System.out.println("table1Loc " + table1Loc.toString());
+    System.out.println("meta locs " + metaLocs.toString());
 
   }
 

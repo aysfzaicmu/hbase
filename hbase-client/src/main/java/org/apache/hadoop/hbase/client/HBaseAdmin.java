@@ -3877,25 +3877,25 @@ public class HBaseAdmin implements Admin {
 
   @Override
   public RegionLocations locateMeta() throws IOException {
+    System.out.println("in hbase admin entered locatemeta");
     return executeCallable(
       new MasterCallable<RegionLocations>(getConnection(), getRpcControllerFactory()) {
         @Override
         protected RegionLocations rpcCall() throws Exception {
-          System.out.println("in hbase admin entered locatemeta");
           LocateMetaResponse response =
               master.locateMeta(getRpcController(), RequestConverter.buildLocateMetaRequest());
           MasterProtos.RegionLocations proto_region_locs = response.getRegionLocations();
           HRegionLocation[] region_loc_array =
               new HRegionLocation[proto_region_locs.getLocationsList().size()];
           int index = 0;
-          System.out.println("in hbase admin before for loop");
+          // System.out.println("in hbase admin before for loop");
           for (MasterProtos.RegionLocation rl : proto_region_locs.getLocationsList()) {
             HBaseProtos.RegionInfo proto_region_info = rl.getRegionInfo();
             HBaseProtos.TableName proto_table_name = proto_region_info.getTableName();
             HBaseProtos.ServerName proto_server_name = rl.getServerName();
 
             long seq_num = rl.getSeqNum(); // add check to see if it is present or not
-            System.out.println("in hbase admin seq num is " + seq_num);
+            // System.out.println("in hbase admin seq num is " + seq_num);
             // TableName table_name = new TableName(proto_table_name.getNamespace(),
             // proto_table_name.getQualifier());
             // TableName table_name = TableName.valueOf(proto_table_name.getNamespace().toString(),

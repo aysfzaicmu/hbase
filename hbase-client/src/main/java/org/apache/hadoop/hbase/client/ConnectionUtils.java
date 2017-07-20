@@ -21,9 +21,6 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.hadoop.hbase.HConstants.EMPTY_END_ROW;
 import static org.apache.hadoop.hbase.HConstants.EMPTY_START_ROW;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.InetAddress;
@@ -61,6 +58,9 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.ReflectionUtils;
 import org.apache.hadoop.ipc.RemoteException;
 import org.apache.hadoop.net.DNS;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 
 /**
  * Utility used by client connections.
@@ -221,7 +221,6 @@ public final class ConnectionUtils {
     // Also, include the hostname in the key so as to take care of those cases where the
     // DNS name is different but IP address remains the same.
     String hostname = serverName.getHostname();
-    System.out.println("in ConnectionUtils, hostname " + hostname);
     int port = serverName.getPort();
     if (hostnameCanChange) {
       try {
