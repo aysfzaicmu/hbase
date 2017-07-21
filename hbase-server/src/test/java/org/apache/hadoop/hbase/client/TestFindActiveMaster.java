@@ -47,6 +47,7 @@ public class TestFindActiveMaster {
     // TEST_UTIL.getConfiguration().set("hbase.master.all",
     // "localhost,-1,-1;localhost,8282,1122212122;localhost,5543,131141413");
     TEST_UTIL.startMiniCluster(NUM_MASTERS, 3, false);
+    Thread.sleep(100000);
   }
 
   @AfterClass
@@ -94,6 +95,15 @@ public class TestFindActiveMaster {
     // System.out.println("table1Loc " + table1Loc.toString());
     System.out.println("meta locs " + metaLocs.toString());
 
+    HMaster firstMaster = TEST_UTIL.getMiniHBaseCluster().getMaster(0);
+
+    System.out.println("aborting master " + firstMaster.getServerName());
+    // firstMaster.stopMaster();
+    firstMaster.abort(null);
+
+    RegionLocations metaLocsDuplicate = conn.locateMeta(table1.getName(), false, -1);
+    System.out.println("meta locs duplicate" + metaLocsDuplicate.toString());
+
   }
 
   public String constructMasterLocsStr() {
@@ -102,6 +112,7 @@ public class TestFindActiveMaster {
 
     for (int i = 0; i < NUM_MASTERS - 1; i++) {
       HMaster master = cluster.getMaster(i);
+      // master.start();
       System.out.println("master " + master.getServerName());
       confMasterLocsSb.append(master.getServerName() + ";");
     }
