@@ -1,7 +1,8 @@
 package org.apache.hadoop.hbase.client;
 
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
@@ -11,11 +12,11 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.MiniHBaseCluster;
 import org.apache.hadoop.hbase.RegionLocations;
+import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.master.HMaster;
 import org.apache.hadoop.hbase.testclassification.MediumTests;
@@ -28,14 +29,21 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 
+/*
+ * These tests check that a client can connect to a valid master, when master locations are passed
+ * in configuration. See HBASE-18095
+ */
 @Category({ MediumTests.class })
-public class TestFindActiveMaster {
-  private static final Log LOG = LogFactory.getLog(TestFindActiveMaster.class);
+public class TestConnectToMaster {
+  private static final Log LOG = LogFactory.getLog(TestConnectToMaster.class);
   private final static HBaseTestingUtility TEST_UTIL = new HBaseTestingUtility();
   private Admin admin;
   public static final int NUM_MASTERS = 3;
   private ConnectionImplementation conn;
-
+  private ServerName DUMMY_SERVERNAME =
+      ServerName.valueOf("dummyServerName,9999,12121212121");
+  private String dummy_conf;
+  private static MiniHBaseCluster cluster;
   @Rule
   public TestName name = new TestName();
 
@@ -46,10 +54,8 @@ public class TestFindActiveMaster {
     TEST_UTIL.getConfiguration().setInt("hbase.client.retries.number", 6);
     TEST_UTIL.getConfiguration().setInt("hbase.regionserver.metahandler.count", 30);
     TEST_UTIL.getConfiguration().setBoolean("hbase.master.enabletable.roundrobin", true);
-    // locs of masters(backups as well) comma separated
-    // TEST_UTIL.getConfiguration().set("hbase.master.all",
-    // "localhost,-1,-1;localhost,8282,1122212122;localhost,5543,131141413");
-    TEST_UTIL.startMiniCluster(NUM_MASTERS, 3, false);
+    TEST_UTIL.startMiniCluster(NUM_MASTERS, 1, false);
+    cluster = TEST_UTIL.getHBaseCluster();
   }
 
   @AfterClass
@@ -61,13 +67,14 @@ public class TestFindActiveMaster {
   public void setUp() throws Exception {
     Configuration conf = TEST_UTIL.getConfiguration();
     String master_locs = constructMasterLocsStr();
-    conf.set("hbase.master.all", master_locs);
+    // conf.set("hbase.master.all", master_locs);
 
     Configuration newConf = new Configuration(conf);
-    newConf.set("hbase.master.all", master_locs);
+    this.dummy_conf = DUMMY_SERVERNAME + ";" + master_locs;
+    System.out.println("dummy conf " + dummy_conf);
+    newConf.set("hbase.master.all", dummy_conf);
 
     conn = (ConnectionImplementation) ConnectionFactory.createConnection(newConf);
-
     // conn = (ConnectionImplementation) ConnectionFactory.createConnection(conf);// PASS IN CLONED
     this.admin = conn.getAdmin(); // VERSIONNNNNNN
 
@@ -80,38 +87,14 @@ public class TestFindActiveMaster {
     }
   }
 
-  /**
-   * This test checks that the meta locations in master and connection are same, thus ensuring the
-   * rpc from client to master serialized and deserialized locations correctly
+  /*
+   * A dummy master servername has been passed in the configuration. Since the connection loops over
+   * the configuration locations, it should try the first location which is the dummy servername but
+   * should not fail and move on to the next one. The test simply creates a table and accesses it.
+   * It also checks that the region info servername returned is valid
    */
   @Test
-  public void testLocateMeta() throws IOException {
-    MiniHBaseCluster cluster = TEST_UTIL.getHBaseCluster();
-    HMaster m = cluster.getMaster();
-    HRegionLocation[] metaLocsFromMaster = m.locateMeta().getRegionLocations();
-
-    // connection calls admin for locate meta
-    HRegionLocation[] metaLocsFromConnection = admin.locateMeta().getRegionLocations();
-
-    assertEquals(metaLocsFromMaster.length, metaLocsFromConnection.length);
-    for (int i = 0; i < metaLocsFromMaster.length; i++) {
-
-      HRegionLocation locFromMaster = metaLocsFromMaster[i];
-      HRegionLocation locFromConnection = metaLocsFromConnection[i];
-      assertEquals(locFromMaster.getServerName(), locFromConnection.getServerName());
-      assertEquals(locFromMaster.getSeqNum(), locFromConnection.getSeqNum());
-      HRegionInfo rlFromMaster = locFromMaster.getRegionInfo();
-      HRegionInfo rlFromConnection = locFromConnection.getRegionInfo();
-      assertEquals(rlFromMaster.getTable(), rlFromMaster.getTable());
-      assertEquals(rlFromMaster.getReplicaId(), rlFromConnection.getReplicaId());
-      assertEquals(rlFromMaster.getRegionId(), rlFromConnection.getRegionId());
-
-    }
-  }
-
-
-  @Test
-  public void testFoo() throws IOException {
+  public void testConnectingToNonDummyServer() throws IOException {
     System.out.println("in test find active master");
 
     final String name = this.name.getMethodName();
@@ -120,27 +103,29 @@ public class TestFindActiveMaster {
     this.admin.createTable(htd1);
     // conn.getTable(htd1.getTableName()).close();
 
-    Table table1 = conn.getTable(TableName.valueOf(name));
-    // List<HRegionLocation> table1Loc = conn.locateRegions(table1.getName());
-    RegionLocations metaLocs = conn.locateMeta(table1.getName(), false, -1);
-    // System.out.println("table1Loc " + table1Loc.toString());
-    System.out.println("meta locs " + metaLocs.toString());
-
-    HMaster firstMaster = TEST_UTIL.getMiniHBaseCluster().getMaster(0);
-
-    System.out.println("aborting master " + firstMaster.getServerName());
-    // firstMaster.stopMaster();
-    firstMaster.abort(null);
-
-    RegionLocations metaLocsDuplicate = conn.locateMeta(table1.getName(), false, -1);
-    System.out.println("meta locs duplicate" + metaLocsDuplicate.toString());
+    Table table = conn.getTable(TableName.valueOf(name));
+    RegionLocations metaLocs = conn.locateMeta(table.getName(), false, -1);
+    assertNotEquals(metaLocs, null);
+    assertEquals(metaLocs.getRegionLocations().length, 1); // contains loc for a single meta
+    HRegionLocation regionLoc = metaLocs.getRegionLocation();
+    assertTrue(checkValidServerName(regionLoc.getServerName()));
 
   }
 
-  public String constructMasterLocsStr() {
-    MiniHBaseCluster cluster = TEST_UTIL.getMiniHBaseCluster();
-    StringBuilder confMasterLocsSb = new StringBuilder();
+  public boolean checkValidServerName(ServerName serverName) {
 
+    boolean serverNameFound = false;
+    for (int i = 0; i < NUM_MASTERS; i++) {
+      HMaster master = cluster.getMaster(i);
+      if (serverName.equals(master.getServerName())) {
+        serverNameFound = true;
+      }
+    }
+    return serverNameFound;
+  }
+
+  public String constructMasterLocsStr() {
+    StringBuilder confMasterLocsSb = new StringBuilder();
     for (int i = 0; i < NUM_MASTERS - 1; i++) {
       HMaster master = cluster.getMaster(i);
       // master.start();

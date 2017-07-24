@@ -45,24 +45,14 @@ abstract class MasterCallable<V> implements RetryingCallable<V>, Closeable {
   protected final ClusterConnection connection;
   protected MasterKeepAliveConnection master;
   private final HBaseRpcController rpcController;
-  // private ServerName serverName;
 
   MasterCallable(final Connection connection, final RpcControllerFactory rpcConnectionFactory) {
     this.connection = (ClusterConnection) connection;
     this.rpcController = rpcConnectionFactory.newController();
   }
 
-  // MasterCallable(final Connection connection, final RpcControllerFactory rpcConnectionFactory,
-  // ServerName serverName) {
-  // this.connection = (ClusterConnection) connection;
-  // this.rpcController = rpcConnectionFactory.newController();
-  // this.serverName = serverName;
-  // }
-
   @Override
   public void prepare(boolean reload) throws IOException {
-    // this.master = (serverName == null) ? this.connection.getKeepAliveMasterService()
-    // : this.connection.getKeepAliveMasterService(serverName);
     this.master = this.connection.getKeepAliveMasterService();
   }
 

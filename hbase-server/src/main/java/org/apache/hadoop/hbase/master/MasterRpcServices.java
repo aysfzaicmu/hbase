@@ -1769,9 +1769,6 @@ public class MasterRpcServices extends RSRpcServices
       for (HRegionLocation rl : region_locs.getRegionLocations()) {
         if (rl != null) {
           // build Proto for RegionInfo and ServerName then add to RegionLocation Proto
-          // HBaseProtos.ServerName.Builder serverNameBuilder = HBaseProtos.ServerName.newBuilder();
-          // serverNameBuilder.setHostName(rl.getServerName().getHostname()).build();
-
           HRegionInfo regionInfo = rl.getRegionInfo();
           HBaseProtos.RegionInfo.Builder regionInfoBuilder = HBaseProtos.RegionInfo.newBuilder();
           HBaseProtos.TableName.Builder tableNameBuilder = HBaseProtos.TableName.newBuilder();
@@ -1781,41 +1778,20 @@ public class MasterRpcServices extends RSRpcServices
           String qualifierString =
               new String(qualifier, 0, qualifier.length, StandardCharsets.UTF_8);
 
-
-          // ByteString namespaceBS =
-          // ByteString.copyFromUtf8(nsString);
-          // ByteString qualifierBS =
-          // ByteString.copyFromUtf8(qualifierString);
-
-          // System.out.println("namespaceBS is " + namespaceBS.to;
-          // System.out.println("qualifierBS is " + qualifierString);
-
-          // tableNameBuilder.setQualifier(qualifierBS);
-          // tableNameBuilder.setNamespace(namespaceBS).build();
-
-          // regionInfoBuilder.setTableName(tableNameBuilder);
-
           // using already written converter function
           regionInfoBuilder.setTableName(ProtobufUtil.toProtoTableName(regionInfo.getTable()));
           regionInfoBuilder.setRegionId(regionInfo.getRegionId());
           regionInfoBuilder.setReplicaId(regionInfo.getReplicaId()).build();
-
           MasterProtos.RegionLocation.Builder regLocBuilder =
               MasterProtos.RegionLocation.newBuilder();
-          // regLocBuilder.setServerName(serverNameBuilder);
           regLocBuilder.setServerName(ProtobufUtil.toServerName(rl.getServerName()));
           regLocBuilder.setSeqNum(rl.getSeqNum());
           regLocBuilder.setRegionInfo(regionInfoBuilder).build();
-
-          // reg_loc_builder.setRegionInfo(rl.getRegionInfo());
-          // reg_loc_builder.setSeqNum(rl.getSeqNum());
           regLocsBuilder.addLocations(regLocBuilder);
         }
       }
       regLocsBuilder.build();
       response.setRegionLocations(regLocsBuilder);
-      // response.setRegionLocations(proto_region_locs)
-      // response.setPeerConfig(ReplicationSerDeHelper.convert(peerConfig));
     } catch (IOException e) {
       throw new ServiceException(e);
     }

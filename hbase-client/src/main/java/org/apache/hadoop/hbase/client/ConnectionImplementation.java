@@ -228,7 +228,6 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
    * constructor
    * @param conf Configuration object
    */
-
   ConnectionImplementation(Configuration conf,
                            ExecutorService pool, User user) throws IOException {
     this.conf = conf;
@@ -320,27 +319,6 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       close();
       throw e;
     }
-
-    if (conf.get("hbase.master.all") != null) {
-      System.out.println("starting new conn,hbase.master.all is " + conf.get("hbase.master.all"));
-    }
-    // conf.set("hbase.master.locations", "test-location");
-    // System.out.println("in client, masters locs are " + conf.get("hbase.master.locations"));
-
-    // ClusterStatus clusterStatus = this.getAdmin().getClusterStatus();
-    // if (clusterStatus != null) {
-    // System.out.println("got CS");
-    // Collection<ServerName> master_locs = clusterStatus.getBackupMasters();
-    // ServerName active_master = clusterStatus.getMaster();
-    // master_locs.add(active_master);
-    //
-    // for (ServerName sN : master_locs) {
-    // System.out.println("in client server name is " + sN.getHostname());
-    // System.out.println("in client port is " + sN.getPort());
-    //
-    // }
-    // }
-
   }
 
   /**
@@ -458,7 +436,6 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       coreThreads = Runtime.getRuntime().availableProcessors() * 8;
     }
     long keepAliveTime = conf.getLong("hbase.hconnection.threads.keepalivetime", 60);
-
     BlockingQueue<Runnable> workQueue = passedWorkQueue;
     if (workQueue == null) {
       workQueue =
@@ -802,37 +779,6 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
           return locations;
         }
       }
-
-
-      // Look up from zookeeper
-      // locations = this.registry.getMetaRegionLocation();
-      // Connection conn2 = this.getAdmin().getConnection();
-      // System.out.println("in client, got connection");
-      // ClusterStatus locations22 = this.getAdmin().getClusterStatus();
-
-      // contact each master and see if it is active
-      // if active, make call
-      // catch timeout exception
-
-
-      // String conf_master_locs = conf.get("hbase.master.all");
-
-      // if (conf_master_locs != null) {
-      // String[] master_locs = conf_master_locs.split(";");
-      //
-      // for (String loc : master_locs) {
-      // String[] sNprops = loc.split(",");
-      // String hostname = sNprops[0];
-      // int port = Integer.parseInt(sNprops[1]);
-      // long startcode = Long.parseLong(sNprops[2]);
-      //
-      // currMasterServerName = ServerName.valueOf(hostname, port, startcode);
-      // boolean isMasterActive = this.getAdmin().isActiveMaster();
-      //
-      // if (isMasterActive) break;
-      //
-      // }
-      // }
       locations = this.getAdmin().locateMeta();
       if (locations != null) {
         cacheLocation(tableName, locations);
@@ -1193,6 +1139,7 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       }
       try {
         checkIfBaseNodeAvailable(zkw);
+        System.out.println("currMasterServerName is " + currMasterServerName);
         ServerName sn = (currMasterServerName != null) ? currMasterServerName
             : MasterAddressTracker.getMasterAddress(zkw);
         if (sn == null) {
@@ -1201,7 +1148,6 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
           throw new MasterNotRunningException(msg);
         }
         if (isDeadServer(sn)) {
-          System.out.println("server is dead");
           throw new MasterNotRunningException(sn + " is dead.");
         }
         // Use the security info interface name as our stub key
@@ -1334,34 +1280,25 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
   public MasterKeepAliveConnection getKeepAliveMasterService()
   throws MasterNotRunningException {
     synchronized (masterAndZKLock) {
-      // if (conf.get("hbase.master.all") != null)
-      // System.out.println("client calling getkeepalivemaster");
-      // System.out.println("inside lock, master alive :"
-      // + isKeepAliveMasterConnectedAndRunning(this.masterServiceState));
       if (!isKeepAliveMasterConnectedAndRunning(this.masterServiceState)) {
-
         String conf_master_locs = conf.get("hbase.master.all");
-
         if (conf_master_locs != null) {
-          System.out.println("client in keepalive");
+          System.out.println("client in keepalive  " + conf_master_locs);
           String[] master_locs = conf_master_locs.split(";");
           boolean foundNonFailedMaster = false;
           int count = 0;
           while (!foundNonFailedMaster) {
-
-            // foundNonFailedMaster = false;
-
             for (String loc : master_locs) {
-              if (count == 0) { // TO REMOVE.just for testing since first loc is active and running
-                count++;
-                continue;
-              }
-
+              // if (count == 0) { // TO REMOVE.just for testing since first loc is active and
+              // running
+              // count++;
+              // continue;
+              // }
+              // WRITE HELPER TO PARSE
               String[] sNprops = loc.split(",");
               String hostname = sNprops[0];
               int port = Integer.parseInt(sNprops[1]);
               long startcode = Long.parseLong(sNprops[2]);
-
               boolean hasExceptions = false;
 
               currMasterServerName = ServerName.valueOf(hostname, port, startcode);
@@ -1375,6 +1312,7 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
                 System.out.println("in client master is not running");
                 // throw ex;
               } catch (IOException e) {
+                System.out.println("unknown host ex");
                 hasExceptions = true;
                 // rethrow as MasterNotRunningException so that we can keep the method sig
                 // throw new MasterNotRunningException(e);
@@ -1385,10 +1323,7 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
                 foundNonFailedMaster = true;
                 break;
               }
-
             }
-            // if (foundNonFailedMaster) break;
-
           }
         }
         else {

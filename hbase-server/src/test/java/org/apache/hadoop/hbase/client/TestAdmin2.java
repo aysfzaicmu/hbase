@@ -98,9 +98,6 @@ public class TestAdmin2 {
     TEST_UTIL.getConfiguration().setInt("hbase.regionserver.metahandler.count", 30);
     TEST_UTIL.getConfiguration().setBoolean(
         "hbase.master.enabletable.roundrobin", true);
-    // locs of masters(backups as well) comma separated
-    // TEST_UTIL.getConfiguration().set("hbase.master.all",
-    // "localhost,-1,-1;localhost,8282,1122212122;localhost,5543,131141413");
     TEST_UTIL.startMiniCluster(3);
   }
 
