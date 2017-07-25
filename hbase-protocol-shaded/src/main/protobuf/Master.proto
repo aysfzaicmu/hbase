@@ -192,13 +192,6 @@ message LocateMetaResponse {
   required RegionLocations region_locations = 1;
 }
 
-message LocateMeta1Request {
-}
-
-message LocateMeta1Response {
-  required RegionLocations region_locations = 1;
-}
-
 message TruncateTableRequest {
   required TableName tableName = 1;
   optional bool preserveSplits = 2 [default = false];
@@ -409,13 +402,6 @@ message EnableCatalogJanitorRequest {
 
 message EnableCatalogJanitorResponse {
   optional bool prev_value = 1;
-}
-
-message AddFooRequest {
-}
-
-message AddFooResponse {
-  required bool value = 1;
 }
 
 message IsCatalogJanitorEnabledRequest {
@@ -853,9 +839,6 @@ service MasterService {
   rpc IsCatalogJanitorEnabled(IsCatalogJanitorEnabledRequest)
      returns(IsCatalogJanitorEnabledResponse);
      
-  rpc AddFoo(AddFooRequest)
-     returns(AddFooResponse);
-
   /** Get a run of the CleanerChore */
   rpc RunCleanerChore(RunCleanerChoreRequest)
      returns(RunCleanerChoreResponse);
@@ -1009,9 +992,6 @@ service MasterService {
   rpc LocateMeta(LocateMetaRequest)
     returns(LocateMetaResponse);
 
-  rpc LocateMeta1(LocateMeta1Request)
-    returns(LocateMeta1Response);
-    
   /** Update peer config for a replication peer */
   rpc UpdateReplicationPeerConfig(UpdateReplicationPeerConfigRequest)
     returns(UpdateReplicationPeerConfigResponse);

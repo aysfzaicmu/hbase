@@ -87,11 +87,12 @@ public class TestConnectToMaster {
     }
   }
 
-  /*
+  /**
    * A dummy master servername has been passed in the configuration. Since the connection loops over
-   * the configuration locations, it should try the first location which is the dummy servername but
-   * should not fail and move on to the next one. The test simply creates a table and accesses it.
-   * It also checks that the region info servername returned is valid
+   * the configuration locations, it should try the first location which is the dummy servername.
+   * This would cause an IOException in connection which is caught, and the next master location is
+   * tried. The test simply creates a table and accesses it. It also checks that the region info
+   * servername returned is valid
    */
   @Test
   public void testConnectingToNonDummyServer() throws IOException {

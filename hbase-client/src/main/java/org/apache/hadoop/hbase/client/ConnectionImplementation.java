@@ -86,8 +86,6 @@ import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsNormaliz
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsNormalizerEnabledResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.ListDrainingRegionServersRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.ListDrainingRegionServersResponse;
-import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.LocateMeta1Request;
-import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.LocateMeta1Response;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.LocateMetaRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.LocateMetaResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.NormalizeRequest;
@@ -1833,12 +1831,6 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       }
 
       @Override
-      public LocateMeta1Response locateMeta1(RpcController controller, LocateMeta1Request request)
-          throws ServiceException {
-        return stub.locateMeta1(controller, request);
-      }
-
-      @Override
       public UpdateReplicationPeerConfigResponse updateReplicationPeerConfig(
           RpcController controller, UpdateReplicationPeerConfigRequest request)
           throws ServiceException {
@@ -1862,14 +1854,6 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       public GetQuotaStatesResponse getQuotaStates(
           RpcController controller, GetQuotaStatesRequest request) throws ServiceException {
         return stub.getQuotaStates(controller, request);
-      }
-
-      @Override
-      public MasterProtos.AddFooResponse addFoo(RpcController controller,
-          MasterProtos.AddFooRequest request)
-          throws ServiceException {
-        // TODO Auto-generated method stub
-        return stub.addFoo(controller, request);
       }
     };
   }

@@ -2073,19 +2073,4 @@ public class MasterRpcServices extends RSRpcServices
       throw new ServiceException(ioe);
     }
   }
-
-  @Override
-  public AddFooResponse addFoo(RpcController controller, AddFooRequest request)
-      throws ServiceException {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public LocateMeta1Response locateMeta1(RpcController controller, LocateMeta1Request request)
-      throws ServiceException {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
 }
