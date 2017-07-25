@@ -83,11 +83,6 @@ public class MockNoopMasterServices implements MasterServices, Server {
   }
 
   @Override
-  public boolean addFoo() {
-    return false;
-  }
-
-  @Override
   public long createSystemTable(final HTableDescriptor hTableDescriptor) throws IOException {
     return -1;
   }
@@ -435,11 +430,6 @@ public class MockNoopMasterServices implements MasterServices, Server {
 
   @Override
   public RegionLocations locateMeta() throws IOException {
-    return null;
-  }
-
-  @Override
-  public RegionLocations locateMeta1() throws IOException {
     return null;
   }
 

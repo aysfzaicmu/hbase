@@ -1027,10 +1027,6 @@ public class HMaster extends HRegionServer implements MasterServices {
       catalogJanitorChore.getEnabled() : false;
   }
 
-  public boolean addFoo() {
-    return true;
-  }
-
   boolean isCleanerChoreEnabled() {
     boolean hfileCleanerFlag = true, logCleanerFlag = true;
 
@@ -3438,26 +3434,6 @@ public class HMaster extends HRegionServer implements MasterServices {
       Thread.currentThread().interrupt();
       return null;
     }
-  }
-
-  @Override
-  public RegionLocations locateMeta1() throws IOException {
-
-    //
-    // HRegionInfo info = new HRegionInfo(1, TABLENAME, 20); //define tablename
-    // HRegionLocation region_loc = new HRegionLocation(info, this.serverName, 44);
-    // RegionLocations region_locs = new RegionLocations(region_loc);
-    // return region_locs;
-    List<HRegionLocation> reg_locs = new ArrayList<HRegionLocation>();
-    MetaTableLocator locator = this.getMetaTableLocator();
-    List<Pair<HRegionInfo, ServerName>> meta_info =
-        locator.getMetaRegionsAndLocations(this.zooKeeper);
-    for (Pair<HRegionInfo, ServerName> pair : meta_info) {
-      HRegionLocation reg_loc = new HRegionLocation(pair.getFirst(), pair.getSecond());
-      reg_locs.add(reg_loc);
-
-    }
-    return new RegionLocations(reg_locs);
   }
 
   @Override

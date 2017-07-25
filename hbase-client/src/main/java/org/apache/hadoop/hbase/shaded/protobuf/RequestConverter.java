@@ -82,7 +82,6 @@ import org.apache.hadoop.hbase.shaded.protobuf.generated.HBaseProtos.RegionSpeci
 import org.apache.hadoop.hbase.shaded.protobuf.generated.HBaseProtos.RegionSpecifier.RegionSpecifierType;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.AddColumnRequest;
-import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.AddFooRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.AssignRegionRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.BalanceRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.CreateNamespaceRequest;
@@ -106,7 +105,6 @@ import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsCleanerC
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsMasterRunningRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsNormalizerEnabledRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsSplitOrMergeEnabledRequest;
-import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.LocateMeta1Request;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.LocateMetaRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.MergeTableRegionsRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.ModifyColumnRequest;
@@ -1451,8 +1449,6 @@ public final class RequestConverter {
   private static final IsCatalogJanitorEnabledRequest IS_CATALOG_JANITOR_ENABLED_REQUEST =
     IsCatalogJanitorEnabledRequest.newBuilder().build();
 
-  private static final AddFooRequest ADD_FOO_REQUEST =
-      AddFooRequest.newBuilder().build();
 
   /**
    * Creates a request for querying the master whether the catalog janitor is enabled
@@ -1462,9 +1458,6 @@ public final class RequestConverter {
     return IS_CATALOG_JANITOR_ENABLED_REQUEST;
   }
 
-  public static AddFooRequest buildAddFooRequest() {
-    return ADD_FOO_REQUEST;
-  }
   /**
    * @see {@link #buildCleanerChoreRequest}
    */
@@ -1642,11 +1635,6 @@ public final class RequestConverter {
 
   public static LocateMetaRequest buildLocateMetaRequest() {
     LocateMetaRequest.Builder builder = LocateMetaRequest.newBuilder();
-    return builder.build();
-  }
-
-  public static LocateMeta1Request buildLocateMeta1Request() {
-    LocateMeta1Request.Builder builder = LocateMeta1Request.newBuilder();
     return builder.build();
   }
 

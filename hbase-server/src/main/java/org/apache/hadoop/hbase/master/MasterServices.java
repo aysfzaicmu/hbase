@@ -236,9 +236,6 @@ public interface MasterServices extends Server {
       final long nonceGroup,
       final long nonce) throws IOException;
 
-
-  boolean addFoo() throws IOException;
-
   /**
    * Add a new column to an existing table
    * @param tableName The table name
@@ -478,9 +475,12 @@ public interface MasterServices extends Server {
   ReplicationPeerConfig getReplicationPeerConfig(String peerId) throws ReplicationException,
       IOException;
 
+  /**
+   * Returns location of meta
+   * @return regionlocations which contains an array of hregionlocations
+   * @throws IOException
+   */
   RegionLocations locateMeta() throws IOException;
-
-  RegionLocations locateMeta1() throws IOException;
 
   /**
    * Update the peerConfig for the specified peer

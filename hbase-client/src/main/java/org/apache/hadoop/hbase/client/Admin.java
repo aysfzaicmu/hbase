@@ -907,7 +907,6 @@ public interface Admin extends Abortable, Closeable {
    */
   boolean isCatalogJanitorEnabled() throws IOException;
 
-  boolean addFoo() throws IOException;
 
   /**
    * Enable/Disable the cleaner chore
@@ -1947,11 +1946,12 @@ public interface Admin extends Abortable, Closeable {
     return new ReplicationPeerConfig();
   }
 
+  /**
+   * Return the location of meta
+   * @return regionlocations which has an array of hregionlocations
+   * @throws IOException
+   */
   default RegionLocations locateMeta() throws IOException {
-    return new RegionLocations();
-  }
-
-  default RegionLocations locateMeta1() throws IOException {
     return new RegionLocations();
   }
 

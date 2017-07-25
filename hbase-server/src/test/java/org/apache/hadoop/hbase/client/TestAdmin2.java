@@ -46,7 +46,6 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.MiniHBaseCluster;
 import org.apache.hadoop.hbase.NotServingRegionException;
 import org.apache.hadoop.hbase.ProcedureInfo;
-import org.apache.hadoop.hbase.RegionLocations;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableExistsException;
 import org.apache.hadoop.hbase.TableName;
@@ -115,58 +114,6 @@ public class TestAdmin2 {
   public void tearDown() throws Exception {
     for (HTableDescriptor htd : this.admin.listTables()) {
       TEST_UTIL.deleteTable(htd.getTableName());
-    }
-  }
-
-  @Test
-  public void testFoo() throws IOException {
-    boolean result = admin.addFoo();
-    System.out.println("result is " + result);
-    assertEquals(true, result);
-  }
-
-  @Test
-  public void testLocateMeta() throws IOException {
-    RegionLocations result = admin.locateMeta();
-    int size = result.getRegionLocations().length;
-    HRegionLocation[] rlocs = result.getRegionLocations();
-    System.out.println("in test locatemeta, region locations: " + rlocs.length);
-    for (HRegionLocation hr : rlocs) {
-      if (hr != null) {
-        ServerName serverName = hr.getServerName();
-        HRegionInfo regionInfo = hr.getRegionInfo();
-        String ns = hr.getRegionInfo().getTable().getNamespaceAsString();
-        System.out.println("in test regioninfo,table,namespace ns is " + ns);
-        System.out.println("in test regioninfo,regionId is " + regionInfo.getRegionId());
-        System.out.println("in test regioninfo,replicaId is " + regionInfo.getReplicaId());
-
-        System.out.println("in test server,hostname is " + serverName.getHostname());
-        System.out.println("in test seq num is " + hr.getSeqNum());
-      } else System.out.println("region loc is null");
-
-    }
-  }
-
-  @Test
-  public void testLocateMeta1() throws IOException {
-    RegionLocations result = admin.locateMeta1();
-    int size = result.getRegionLocations().length;
-    HRegionLocation[] rlocs = result.getRegionLocations();
-    // System.out.println("region locations: " + rlocs.length);
-    for (HRegionLocation hr : rlocs) {
-      if (hr != null) {
-        ServerName serverName = hr.getServerName();
-        HRegionInfo regionInfo = hr.getRegionInfo();
-        String ns = hr.getRegionInfo().getTable().getNamespaceAsString();
-        // System.out.println("in test regioninfo,table,namespace ns is " + ns);
-        // System.out.println("in test regioninfo,regionId is " + regionInfo.getRegionId());
-        // System.out.println("in test regioninfo,replicaId is " + regionInfo.getReplicaId());
-        //
-        // System.out.println("in test server,hostname is " + serverName.getHostname());
-        // System.out.println("in test seq num is " + hr.getSeqNum());
-      }
-      // else System.out.println("region loc is null");
-
     }
   }
 
