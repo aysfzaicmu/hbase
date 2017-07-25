@@ -177,14 +177,6 @@ message RegionLocations {
 	repeated RegionLocation locations = 1;
 }
 
-
-message IsActiveMasterRequest {
-}
-
-message IsActiveMasterResponse {
-  required bool is_active = 1;
-}
-
 message LocateMetaRequest {
 }
 
@@ -986,9 +978,6 @@ service MasterService {
   rpc GetReplicationPeerConfig(GetReplicationPeerConfigRequest)
     returns(GetReplicationPeerConfigResponse);
 
-  rpc IsActiveMaster(IsActiveMasterRequest)
-  	returns(IsActiveMasterResponse); 
-    
   rpc LocateMeta(LocateMetaRequest)
     returns(LocateMetaResponse);
 

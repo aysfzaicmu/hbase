@@ -1137,7 +1137,6 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       }
       try {
         checkIfBaseNodeAvailable(zkw);
-        System.out.println("currMasterServerName is " + currMasterServerName);
         ServerName sn = (currMasterServerName != null) ? currMasterServerName
             : MasterAddressTracker.getMasterAddress(zkw);
         if (sn == null) {

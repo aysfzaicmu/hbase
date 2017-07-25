@@ -144,7 +144,6 @@ import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.GetSchemaA
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.GetTableDescriptorsRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.GetTableDescriptorsResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.GetTableNamesRequest;
-import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsActiveMasterResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsInMaintenanceModeRequest;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsInMaintenanceModeResponse;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos.IsProcedureDoneRequest;
@@ -3850,23 +3849,8 @@ public class HBaseAdmin implements Admin {
     });
   }
 
-
-  @Override
-  public boolean isActiveMaster() throws IOException {
-    return executeCallable(new MasterCallable<Boolean>(getConnection(), getRpcControllerFactory()) {
-      @Override
-      protected Boolean rpcCall() throws Exception {
-        IsActiveMasterResponse response = master.isActiveMaster(getRpcController(),
-          RequestConverter.buildIsActiveMasterRequest());
-
-        return response.getIsActive();
-      }
-    });
-  }
-
   @Override
   public RegionLocations locateMeta() throws IOException {
-    System.out.println("in hbase admin entered locatemeta");
     return executeCallable(
       new MasterCallable<RegionLocations>(getConnection(), getRpcControllerFactory()) {
         @Override
@@ -3877,21 +3861,12 @@ public class HBaseAdmin implements Admin {
           HRegionLocation[] region_loc_array =
               new HRegionLocation[proto_region_locs.getLocationsList().size()];
           int index = 0;
-          // System.out.println("in hbase admin before for loop");
           for (MasterProtos.RegionLocation rl : proto_region_locs.getLocationsList()) {
             HBaseProtos.RegionInfo proto_region_info = rl.getRegionInfo();
             HBaseProtos.TableName proto_table_name = proto_region_info.getTableName();
             HBaseProtos.ServerName proto_server_name = rl.getServerName();
-
             long seq_num = rl.getSeqNum(); // add check to see if it is present or not
-            // System.out.println("in hbase admin seq num is " + seq_num);
-            // TableName table_name = new TableName(proto_table_name.getNamespace(),
-            // proto_table_name.getQualifier());
-            // TableName table_name = TableName.valueOf(proto_table_name.getNamespace().toString(),
-            // proto_table_name.getQualifier().toString());
             TableName table_name = ProtobufUtil.toTableName(proto_table_name);
-            // ServerName server_name = ServerName.valueOf(proto_server_name.getHostName(),
-            // proto_server_name.getPort(), proto_server_name.getStartCode());
             ServerName server_name = ProtobufUtil.toServerName(proto_server_name);
             HRegionInfo region_info = new HRegionInfo(proto_region_info.getRegionId(), table_name,
                 proto_region_info.getReplicaId());
