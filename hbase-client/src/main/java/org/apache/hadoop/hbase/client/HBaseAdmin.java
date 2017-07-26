@@ -3852,7 +3852,7 @@ public class HBaseAdmin implements Admin {
   @Override
   public RegionLocations locateMeta() throws IOException {
     return executeCallable(
-      new MasterCallable<RegionLocations>(getConnection(), getRpcControllerFactory()) {
+      new MasterCallableForMeta<RegionLocations>(getConnection(), getRpcControllerFactory()) {
         @Override
         protected RegionLocations rpcCall() throws Exception {
           LocateMetaResponse response =

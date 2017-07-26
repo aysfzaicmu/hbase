@@ -90,6 +90,7 @@ public class TestLocateMetaNoZK {
       assertEquals(rlFromMaster.getRegionId(), rlFromConnection.getRegionId());
 
     }
+    System.out.println("regionlocs " + metaLocsFromMaster.toString());
   }
 
   /**

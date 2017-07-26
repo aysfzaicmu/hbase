@@ -342,4 +342,6 @@ public interface ClusterConnection extends Connection {
    * @throws IOException if a remote or network exception occurs
    */
   int getCurrentNrHRS() throws IOException;
+
+  MasterKeepAliveConnection getKeepAliveMasterServiceForMeta() throws MasterNotRunningException;
 }
