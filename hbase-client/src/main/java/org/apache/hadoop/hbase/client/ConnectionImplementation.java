@@ -1087,7 +1087,7 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
      * @return A stub for master services.
      */
     private MasterProtos.MasterService.BlockingInterface
-        makeStubNoRetries(ServerName currMasterServerName)
+        makeStubNoRetries()
         throws IOException, KeeperException {
       ZooKeeperKeepAliveConnection zkw;
       try {
@@ -1116,7 +1116,44 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
               BlockingRpcChannel channel = rpcClient.createBlockingRpcChannel(sn, user, rpcTimeout);
               return MasterProtos.MasterService.newBlockingStub(channel);
             });
-        if (currMasterServerName == null) isMasterRunning(stub);
+        // only check if the master is running if it is an rpc not for locateMeta
+        isMasterRunning(stub);
+        return stub;
+      } finally {
+        zkw.close();
+      }
+    }
+
+    private MasterProtos.MasterService.BlockingInterface makeStubNoRetriesForMeta(
+        ServerName currMasterServerName) throws IOException, KeeperException {
+      ZooKeeperKeepAliveConnection zkw;
+      try {
+        zkw = getKeepAliveZooKeeperWatcher();
+      } catch (IOException e) {
+        ExceptionUtil.rethrowIfInterrupt(e);
+        throw new ZooKeeperConnectionException("Can't connect to ZooKeeper", e);
+      }
+      try {
+        checkIfBaseNodeAvailable(zkw);
+        ServerName sn = (currMasterServerName != null) ? currMasterServerName
+            : MasterAddressTracker.getMasterAddress(zkw);
+        if (sn == null) {
+          String msg = "ZooKeeper available but no active master location found";
+          LOG.info(msg);
+          throw new MasterNotRunningException(msg);
+        }
+        if (isDeadServer(sn)) {
+          throw new MasterNotRunningException(sn + " is dead.");
+        }
+        // Use the security info interface name as our stub key
+        String key = getStubKey(MasterProtos.MasterService.getDescriptor().getName(), sn,
+          hostnamesCanChange);
+        MasterProtos.MasterService.BlockingInterface stub =
+            (MasterProtos.MasterService.BlockingInterface) computeIfAbsentEx(stubs, key, () -> {
+              BlockingRpcChannel channel = rpcClient.createBlockingRpcChannel(sn, user, rpcTimeout);
+              return MasterProtos.MasterService.newBlockingStub(channel);
+            });
+        // only check if the master is running if it is an rpc not for locateMeta
         return stub;
       } finally {
         zkw.close();
@@ -1128,7 +1165,7 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
      * @return A stub to do <code>intf</code> against the master
      * @throws org.apache.hadoop.hbase.MasterNotRunningException if master is not running
      */
-    MasterProtos.MasterService.BlockingInterface makeStub(ServerName currMasterServerName)
+    MasterProtos.MasterService.BlockingInterface makeStub()
         throws IOException {
       // The lock must be at the beginning to prevent multiple master creations
       // (and leaks) in a multithread context
@@ -1136,7 +1173,29 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
         Exception exceptionCaught = null;
         if (!closed) {
           try {
-            return makeStubNoRetries(currMasterServerName);
+            return makeStubNoRetries();
+          } catch (IOException e) {
+            exceptionCaught = e;
+          } catch (KeeperException e) {
+            exceptionCaught = e;
+          }
+          System.out.println("in makestub throwing exception");
+          throw new MasterNotRunningException(exceptionCaught);
+        } else {
+          throw new DoNotRetryIOException("Connection was closed while trying to get master");
+        }
+      }
+    }
+
+    MasterProtos.MasterService.BlockingInterface makeStubForMeta(ServerName currMasterServerName)
+        throws IOException {
+      // The lock must be at the beginning to prevent multiple master creations
+      // (and leaks) in a multithread context
+      synchronized (masterAndZKLock) {
+        Exception exceptionCaught = null;
+        if (!closed) {
+          try {
+            return makeStubNoRetriesForMeta(currMasterServerName);
           } catch (IOException e) {
             exceptionCaught = e;
           } catch (KeeperException e) {
@@ -1242,7 +1301,7 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
       if (!isKeepAliveMasterConnectedAndRunning(this.masterServiceState)) {
         MasterServiceStubMaker stubMaker = new MasterServiceStubMaker();
         try {
-          this.masterServiceState.stub = stubMaker.makeStub(null);
+          this.masterServiceState.stub = stubMaker.makeStub();
         } catch (MasterNotRunningException ex) {
           throw ex;
         } catch (IOException e) {
@@ -1267,42 +1326,37 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
   @Override
   public MasterKeepAliveConnection getKeepAliveMasterServiceForMeta()
       throws MasterNotRunningException {
-    System.out.println("in keepalive for meta");
     synchronized (masterAndZKLock) {
-      System.out.println("in keepalive for meta inside lock");
       if (!isKeepAliveMasterConnectedAndRunning(this.masterServiceStateForMeta)) {
         String conf_master_locs = conf.get("hbase.master.all");
         if (conf_master_locs != null) {
-          System.out.println("client in keepalive  " + conf_master_locs);
           String[] master_locs = conf_master_locs.split(";");
           boolean foundNonFailedMaster = false;
+          // keep looping over locs till a valid master is found
           while (!foundNonFailedMaster) {
             for (String loc : master_locs) {
               String[] sNprops = loc.split(",");
+              // parse hostname,port and startcode
               String hostname = sNprops[0];
               int port = Integer.parseInt(sNprops[1]);
               long startcode = Long.parseLong(sNprops[2]);
               boolean hasExceptions = false;
-
               currMasterServerName = ServerName.valueOf(hostname, port, startcode);
-              System.out.println("client trying servername " + currMasterServerName);
-
+              System.out.println("client trying " + currMasterServerName.toString());
               MasterServiceStubMaker stubMaker = new MasterServiceStubMaker();
               try {
-                this.masterServiceStateForMeta.stub = stubMaker.makeStub(currMasterServerName);
+                this.masterServiceStateForMeta.stub =
+                    stubMaker.makeStubForMeta(currMasterServerName);
               } catch (MasterNotRunningException ex) {
+                LOG.warn("Caught exception from master " + ex);
                 hasExceptions = true;
-                System.out.println("in client master is not running");
-                // throw ex;
               } catch (IOException e) {
-                System.out.println("unknown host ex");
+                LOG.warn("Caught exception from master: " + e);
                 hasExceptions = true;
-                // rethrow as MasterNotRunningException so that we can keep the method sig
-                // throw new MasterNotRunningException(e);
               }
-              // since no exception
+              // since no exception, we have found our master
               if (!hasExceptions) {
-                System.out.println("found NonFailedMaster: " + currMasterServerName);
+                System.out.println("master has no exceptions");
                 foundNonFailedMaster = true;
                 break;
               }
@@ -1313,9 +1367,8 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
           // master locs not provided in conf
           MasterServiceStubMaker stubMaker = new MasterServiceStubMaker();
           try {
-            this.masterServiceStateForMeta.stub = stubMaker.makeStub(null);
+            this.masterServiceStateForMeta.stub = stubMaker.makeStub();
           } catch (MasterNotRunningException ex) {
-            System.out.println("in server master is not running");
             throw ex;
           } catch (IOException e) {
             // rethrow as MasterNotRunningException so that we can keep the method sig
