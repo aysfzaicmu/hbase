@@ -477,6 +477,12 @@ public class ShortCircuitMasterConnection implements MasterKeepAliveConnection {
   }
 
   @Override
+  public LocateMetaResponse locateMeta(RpcController controller, LocateMetaRequest request)
+      throws ServiceException {
+    return stub.locateMeta(controller, request);
+  }
+
+  @Override
   public UpdateReplicationPeerConfigResponse updateReplicationPeerConfig(RpcController controller,
       UpdateReplicationPeerConfigRequest request) throws ServiceException {
     return stub.updateReplicationPeerConfig(controller, request);

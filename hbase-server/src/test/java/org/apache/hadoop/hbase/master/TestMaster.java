@@ -53,9 +53,9 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TestName;
 
 import com.google.common.base.Joiner;
-import org.junit.rules.TestName;
 
 @Category({MasterTests.class, MediumTests.class})
 public class TestMaster {

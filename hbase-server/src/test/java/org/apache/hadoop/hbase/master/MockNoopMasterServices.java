@@ -27,6 +27,7 @@ import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.ProcedureInfo;
+import org.apache.hadoop.hbase.RegionLocations;
 import org.apache.hadoop.hbase.Server;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableDescriptors;
@@ -50,6 +51,7 @@ import org.apache.hadoop.hbase.replication.ReplicationPeerConfig;
 import org.apache.hadoop.hbase.replication.ReplicationPeerDescription;
 import org.apache.hadoop.hbase.zookeeper.MetaTableLocator;
 import org.apache.hadoop.hbase.zookeeper.ZooKeeperWatcher;
+
 import com.google.protobuf.Service;
 
 public class MockNoopMasterServices implements MasterServices, Server {
@@ -423,6 +425,11 @@ public class MockNoopMasterServices implements MasterServices, Server {
   @Override
   public ReplicationPeerConfig getReplicationPeerConfig(String peerId) throws ReplicationException,
       IOException {
+    return null;
+  }
+
+  @Override
+  public RegionLocations locateMeta() throws IOException {
     return null;
   }
 

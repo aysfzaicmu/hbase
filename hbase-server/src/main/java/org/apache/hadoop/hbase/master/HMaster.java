@@ -62,12 +62,14 @@ import org.apache.hadoop.hbase.HBaseInterfaceAudience;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HRegionInfo;
+import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.MetaTableAccessor;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.PleaseHoldException;
 import org.apache.hadoop.hbase.ProcedureInfo;
+import org.apache.hadoop.hbase.RegionLocations;
 import org.apache.hadoop.hbase.ServerLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableDescriptors;
@@ -77,6 +79,7 @@ import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.UnknownRegionException;
 import org.apache.hadoop.hbase.classification.InterfaceAudience;
 import org.apache.hadoop.hbase.client.MasterSwitchType;
+import org.apache.hadoop.hbase.client.RegionReplicaUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.TableState;
 import org.apache.hadoop.hbase.coprocessor.BypassCoprocessorException;
@@ -185,6 +188,7 @@ import org.apache.hadoop.hbase.zookeeper.DrainingServerTracker;
 import org.apache.hadoop.hbase.zookeeper.LoadBalancerTracker;
 import org.apache.hadoop.hbase.zookeeper.MasterAddressTracker;
 import org.apache.hadoop.hbase.zookeeper.MasterMaintenanceModeTracker;
+import org.apache.hadoop.hbase.zookeeper.MetaTableLocator;
 import org.apache.hadoop.hbase.zookeeper.RegionNormalizerTracker;
 import org.apache.hadoop.hbase.zookeeper.RegionServerTracker;
 import org.apache.hadoop.hbase.zookeeper.SplitOrMergeTracker;
@@ -3389,6 +3393,46 @@ public class HMaster extends HRegionServer implements MasterServices {
       cpHost.postGetReplicationPeerConfig(peerId);
     }
     return peerConfig;
+  }
+
+  @Override
+  public RegionLocations locateMeta() throws IOException {
+    ZooKeeperWatcher zkw = this.zooKeeper;
+    try {
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Looking up meta region location in ZK," + " connection=" + this);
+      }
+      List<ServerName> servers = new MetaTableLocator().blockUntilAvailable(zkw,
+        this.getConfiguration().getInt(HConstants.HBASE_RPC_TIMEOUT_KEY,
+          HConstants.DEFAULT_HBASE_RPC_TIMEOUT),
+        this.getConfiguration());
+      if (LOG.isTraceEnabled()) {
+        if (servers == null) {
+          LOG.trace("Looked up meta region location, connection=" + this + "; servers = null");
+        } else {
+          StringBuilder str = new StringBuilder();
+          for (ServerName s : servers) {
+            str.append(s.toString());
+            str.append(" ");
+          }
+          LOG.trace(
+            "Looked up meta region location, connection=" + this + "; servers = " + str.toString());
+        }
+      }
+      if (servers == null) return null;
+      HRegionLocation[] locs = new HRegionLocation[servers.size()];
+      int i = 0;
+      for (ServerName server : servers) {
+        HRegionInfo h =
+            RegionReplicaUtil.getRegionInfoForReplica(HRegionInfo.FIRST_META_REGIONINFO, i);
+        if (server == null) locs[i++] = null;
+        else locs[i++] = new HRegionLocation(h, server, 0);
+      }
+      return new RegionLocations(locs);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return null;
+    }
   }
 
   @Override

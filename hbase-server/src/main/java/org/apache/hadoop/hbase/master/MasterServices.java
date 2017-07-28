@@ -25,6 +25,7 @@ import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.ProcedureInfo;
+import org.apache.hadoop.hbase.RegionLocations;
 import org.apache.hadoop.hbase.Server;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableDescriptors;
@@ -34,9 +35,9 @@ import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.classification.InterfaceAudience;
 import org.apache.hadoop.hbase.client.MasterSwitchType;
 import org.apache.hadoop.hbase.executor.ExecutorService;
+import org.apache.hadoop.hbase.favored.FavoredNodesManager;
 import org.apache.hadoop.hbase.master.assignment.AssignmentManager;
 import org.apache.hadoop.hbase.master.locking.LockManager;
-import org.apache.hadoop.hbase.favored.FavoredNodesManager;
 import org.apache.hadoop.hbase.master.normalizer.RegionNormalizer;
 import org.apache.hadoop.hbase.master.procedure.MasterProcedureEnv;
 import org.apache.hadoop.hbase.master.snapshot.SnapshotManager;
@@ -234,7 +235,6 @@ public interface MasterServices extends Server {
       final TableName tableName,
       final long nonceGroup,
       final long nonce) throws IOException;
-
 
   /**
    * Add a new column to an existing table
@@ -474,6 +474,13 @@ public interface MasterServices extends Server {
    */
   ReplicationPeerConfig getReplicationPeerConfig(String peerId) throws ReplicationException,
       IOException;
+
+  /**
+   * Returns location of meta
+   * @return regionlocations which contains an array of hregionlocations
+   * @throws IOException
+   */
+  RegionLocations locateMeta() throws IOException;
 
   /**
    * Update the peerConfig for the specified peer

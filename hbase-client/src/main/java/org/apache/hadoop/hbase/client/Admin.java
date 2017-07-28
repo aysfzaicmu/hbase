@@ -38,6 +38,7 @@ import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.NamespaceNotFoundException;
 import org.apache.hadoop.hbase.ProcedureInfo;
 import org.apache.hadoop.hbase.RegionLoad;
+import org.apache.hadoop.hbase.RegionLocations;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableExistsException;
 import org.apache.hadoop.hbase.TableName;
@@ -905,6 +906,7 @@ public interface Admin extends Abortable, Closeable {
    *
    */
   boolean isCatalogJanitorEnabled() throws IOException;
+
 
   /**
    * Enable/Disable the cleaner chore
@@ -1945,6 +1947,15 @@ public interface Admin extends Abortable, Closeable {
   }
 
   /**
+   * Return the location of meta
+   * @return regionlocations which has an array of hregionlocations
+   * @throws IOException
+   */
+  default RegionLocations locateMeta() throws IOException {
+    return new RegionLocations();
+  }
+
+  /**
    * Update the peerConfig for the specified peer
    * @param peerId a short name that identifies the peer
    * @param peerConfig new config for the peer
@@ -2054,4 +2065,5 @@ public interface Admin extends Abortable, Closeable {
    */
   void clearCompactionQueues(final ServerName sn, final Set<String> queues)
     throws IOException, InterruptedException;
+
 }

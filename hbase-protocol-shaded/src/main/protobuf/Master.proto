@@ -166,6 +166,24 @@ message DeleteTableResponse {
   optional uint64 proc_id = 1;
 }
 
+
+message RegionLocation {
+	required RegionInfo region_info = 1;
+	required ServerName server_name = 2;
+	optional int64 seq_num = 3;
+}
+
+message RegionLocations {
+	repeated RegionLocation locations = 1;
+}
+
+message LocateMetaRequest {
+}
+
+message LocateMetaResponse {
+  required RegionLocations region_locations = 1;
+}
+
 message TruncateTableRequest {
   required TableName tableName = 1;
   optional bool preserveSplits = 2 [default = false];
@@ -812,7 +830,7 @@ service MasterService {
    */
   rpc IsCatalogJanitorEnabled(IsCatalogJanitorEnabledRequest)
      returns(IsCatalogJanitorEnabledResponse);
-
+     
   /** Get a run of the CleanerChore */
   rpc RunCleanerChore(RunCleanerChoreRequest)
      returns(RunCleanerChoreResponse);
@@ -959,6 +977,9 @@ service MasterService {
   /** Return peer config for a replication peer */
   rpc GetReplicationPeerConfig(GetReplicationPeerConfigRequest)
     returns(GetReplicationPeerConfigResponse);
+
+  rpc LocateMeta(LocateMetaRequest)
+    returns(LocateMetaResponse);
 
   /** Update peer config for a replication peer */
   rpc UpdateReplicationPeerConfig(UpdateReplicationPeerConfigRequest)
