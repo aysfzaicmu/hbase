@@ -1,3 +1,8 @@
+
+Link to JIRA: https://issues.apache.org/jira/browse/HBASE-18095
+Link to Design document: https://docs.google.com/document/d/1VVn0-4xuIDkKORRPxq6MPXklqNy0vRkhmQJZojaieuY/edit
+
+
 Apache HBase [1] is an open-source, distributed, versioned, column-oriented
 store modeled after Google' Bigtable: A Distributed Storage System for
 Structured Data by Chang et al.[2]  Just as Bigtable leverages the distributed
