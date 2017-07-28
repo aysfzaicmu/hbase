@@ -1,3 +1,14 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable
+ * law or agreed to in writing, software distributed under the License is distributed on an "AS IS"
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
+ * for the specific language governing permissions and limitations under the License.
+ */
+
 package org.apache.hadoop.hbase.client;
 
 import static org.junit.Assert.assertEquals;
@@ -67,16 +78,13 @@ public class TestConnectToMaster {
   public void setUp() throws Exception {
     Configuration conf = TEST_UTIL.getConfiguration();
     String master_locs = constructMasterLocsStr();
-    // conf.set("hbase.master.all", master_locs);
 
     Configuration newConf = new Configuration(conf);
     this.dummy_conf = DUMMY_SERVERNAME + ";" + master_locs;
-    System.out.println("dummy conf " + dummy_conf);
     newConf.set("hbase.master.all", dummy_conf);
 
     conn = (ConnectionImplementation) ConnectionFactory.createConnection(newConf);
-    // conn = (ConnectionImplementation) ConnectionFactory.createConnection(conf);// PASS IN CLONED
-    this.admin = conn.getAdmin(); // VERSIONNNNNNN
+    this.admin = conn.getAdmin();
 
   }
 
@@ -96,13 +104,10 @@ public class TestConnectToMaster {
    */
   @Test
   public void testConnectingToNonDummyServer() throws IOException {
-    System.out.println("in test find active master");
-
     final String name = this.name.getMethodName();
     HTableDescriptor htd1 = new HTableDescriptor(TableName.valueOf(name));
     htd1.addFamily(new HColumnDescriptor(HConstants.CATALOG_FAMILY));
     this.admin.createTable(htd1);
-    // conn.getTable(htd1.getTableName()).close();
 
     Table table = conn.getTable(TableName.valueOf(name));
     RegionLocations metaLocs = conn.locateMeta(table.getName(), false, -1);
@@ -129,8 +134,6 @@ public class TestConnectToMaster {
     StringBuilder confMasterLocsSb = new StringBuilder();
     for (int i = 0; i < NUM_MASTERS - 1; i++) {
       HMaster master = cluster.getMaster(i);
-      // master.start();
-      System.out.println("master " + master.getServerName());
       confMasterLocsSb.append(master.getServerName() + ";");
     }
     confMasterLocsSb.append(cluster.getMaster(NUM_MASTERS - 1).getServerName());

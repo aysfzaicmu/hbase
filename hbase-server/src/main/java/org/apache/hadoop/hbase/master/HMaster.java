@@ -2682,7 +2682,6 @@ public class HMaster extends HRegionServer implements MasterServices {
 
   void checkServiceStarted() throws ServerNotRunningYetException {
     if (!serviceStarted) {
-      System.out.println("service has not yet started for " + this.getServerName());
       throw new ServerNotRunningYetException("Server is not running yet");
     }
   }

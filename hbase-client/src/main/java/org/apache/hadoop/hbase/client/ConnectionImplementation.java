@@ -1179,7 +1179,6 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
           } catch (KeeperException e) {
             exceptionCaught = e;
           }
-          System.out.println("in makestub throwing exception");
           throw new MasterNotRunningException(exceptionCaught);
         } else {
           throw new DoNotRetryIOException("Connection was closed while trying to get master");
@@ -1201,7 +1200,6 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
           } catch (KeeperException e) {
             exceptionCaught = e;
           }
-          System.out.println("in makestub throwing exception");
           throw new MasterNotRunningException(exceptionCaught);
         } else {
           throw new DoNotRetryIOException("Connection was closed while trying to get master");
@@ -1342,7 +1340,6 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
               long startcode = Long.parseLong(sNprops[2]);
               boolean hasExceptions = false;
               currMasterServerName = ServerName.valueOf(hostname, port, startcode);
-              System.out.println("client trying " + currMasterServerName.toString());
               MasterServiceStubMaker stubMaker = new MasterServiceStubMaker();
               try {
                 this.masterServiceStateForMeta.stub =
@@ -1356,7 +1353,6 @@ class ConnectionImplementation implements ClusterConnection, Closeable {
               }
               // since no exception, we have found our master
               if (!hasExceptions) {
-                System.out.println("master has no exceptions");
                 foundNonFailedMaster = true;
                 break;
               }
